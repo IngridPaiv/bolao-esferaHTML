@@ -282,7 +282,6 @@ const users=[
   {id:"F08",name:"Ana Flavia",pwd:"AnaFlavia26EB"},
   {id:"F09",name:"Barbara Câmara",pwd:"Barbara26EB"},
   {id:"F10",name:"Breno Tenorio",pwd:"Breno26EB"},
-  {id:"F11",name:"Bruna Martins",pwd:"Bruna26EB"},
   {id:"F12",name:"Camila Camargo",pwd:"Camila26EB"},
   {id:"F13",name:"Camilla Reis",pwd:"Camilla26EB"},
   {id:"F14",name:"Daniela Matos",pwd:"Daniela26EB"},
@@ -381,6 +380,7 @@ function startApp(){
     renderGames();
     if(document.querySelector('#sec-ranking.active'))renderRanking();
     if(document.querySelector('#at-resultados:not([style*="none"])'))renderAdmin();
+    checkPodium();
   });
   db.ref('games').once('value',function(snap){if(!snap.val())db.ref('games').set(defaultGames);});
   renderGames();
@@ -571,7 +571,6 @@ function renderRanking(){
   var el=document.getElementById('rankingContent');
   var sorted=users.map(function(u){return Object.assign({},u,{pts:getUserTotalPoints(u.id)});}).sort(function(a,b){return b.pts-a.pts;});
   var medals=['🥇','🥈','🥉'];
-  checkPodium();
   var html='<table class="ranking-table"><thead><tr><th>#</th><th>Participante</th><th style="text-align:right">Pontos</th></tr></thead><tbody>';
   sorted.forEach(function(u,i){html+='<tr><td>'+(medals[i]||((i+1)+'º'))+'</td><td>'+u.name+'</td><td style="text-align:right"><span class="points-badge">'+u.pts+'</span></td></tr>';});
   html+='</tbody></table>';el.innerHTML=html;
@@ -749,3 +748,4 @@ document.getElementById('modalAdminOverlay').addEventListener('click',function(e
 </script>
 </body>
 </html>
+
