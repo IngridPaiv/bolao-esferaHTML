@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -43,14 +42,14 @@
     .result-badge{font-size:.7rem;padding:3px 9px;border-radius:20px;font-weight:600;background:var(--el);color:var(--eb)}
     .badge-locked{background:#eef2ff;color:#1a2e4a;font-size:.68rem;padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:3px}
     .badge-encerrado{background:#fff3e0;color:#e65100;font-size:.68rem;padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:3px}
-    .btn-confirm{padding:.55rem 1rem;background:var(--eb);color:#fff;border:none;border-radius:8px;font-size:.82rem;cursor:pointer;font-weight:600;margin-top:.75rem;width:100%;transition:background .15s}
+    .btn-confirm{padding:.55rem 1rem;background:var(--eb);color:#fff;border:none;border-radius:8px;font-size:.82rem;cursor:pointer;font-weight:600;margin-top:.75rem;width:100%}
     .btn-confirm:hover{background:var(--em)}
     .btn-confirm:disabled{background:#ccc;cursor:not-allowed}
-    .btn-primary{padding:.65rem 1rem;background:var(--eb);color:#fff;border:none;border-radius:8px;font-size:.85rem;cursor:pointer;font-weight:600;transition:background .15s}
+    .btn-primary{padding:.65rem 1rem;background:var(--eb);color:#fff;border:none;border-radius:8px;font-size:.85rem;cursor:pointer;font-weight:600}
     .btn-primary:hover{background:var(--em)}
     .btn-primary.full{width:100%;padding:.75rem}
-    .txt-input{width:100%;padding:.65rem .85rem;border:1px solid #d0d0d0;border-radius:8px;background:#fff;color:#1a1a1a;font-size:.85rem;font-family:inherit}
-    .txt-input:focus{outline:none;border-color:var(--ea);box-shadow:0 0 0 3px rgba(37,99,168,.1)}
+    .txt-input,.user-select{width:100%;padding:.65rem .85rem;border:1px solid #d0d0d0;border-radius:8px;background:#fff;color:#1a1a1a;font-size:.85rem;font-family:inherit}
+    .txt-input:focus,.user-select:focus{outline:none;border-color:var(--ea);box-shadow:0 0 0 3px rgba(37,99,168,.1)}
     .ranking-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)}
     .ranking-table th{font-size:.75rem;color:#888;font-weight:600;text-align:left;padding:.6rem .9rem;border-bottom:1px solid #eee;background:#fafafa}
     .ranking-table td{font-size:.85rem;padding:.7rem .9rem;border-bottom:1px solid #f0f0f0;color:#1a1a1a}
@@ -66,16 +65,17 @@
     .real-score-area{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;padding:.5rem .75rem;background:var(--el);border-radius:8px}
     .real-label{font-size:.72rem;color:var(--eb);font-weight:600}
     .no-data{text-align:center;color:#aaa;font-size:.85rem;padding:2.5rem;background:#fafafa;border-radius:12px;border:1px solid #eee}
-    .login-screen{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:2.5rem 1.5rem;text-align:center;max-width:340px;margin:0 auto;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-    .lock-err{font-size:.78rem;color:#c62828;margin-bottom:.75rem;display:none}
+    .login-box{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:2rem 1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:1rem}
+    .login-box h2{font-size:1rem;font-weight:700;color:#1a1a1a;margin-bottom:1.25rem}
+    .field-label{font-size:.78rem;color:#888;margin-bottom:6px;display:block;font-weight:500}
+    .lock-err{font-size:.78rem;color:#c62828;margin-top:.4rem;display:none}
+    .pwd-row{display:none;margin-top:.75rem}
     .admin-tabs{display:flex;gap:6px;margin-bottom:1rem}
     .admin-tab{padding:.4rem .9rem;font-size:.8rem;cursor:pointer;border:1px solid #d0d0d0;border-radius:20px;background:none;color:#888}
     .admin-tab.active{background:var(--eb);color:#fff;border-color:var(--eb)}
     .game-edit-card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem}
     .edit-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem}
-    .field-label{font-size:.72rem;color:#888;margin-bottom:4px;display:block}
-    .delete-btn{background:none;border:none;color:#c62828;cursor:pointer;font-size:.8rem;padding:4px 8px;border-radius:6px}
-    .delete-btn:hover{background:#fff0f0}
+    .edit-label{font-size:.72rem;color:#888;margin-bottom:4px;display:block}
     .card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
     .info-box{background:var(--el);border-radius:8px;padding:.65rem 1rem;font-size:.78rem;color:var(--eb);margin-bottom:.75rem;display:flex;align-items:flex-start;gap:.5rem}
     .add-game-box{background:#f9f9fb;border:1px solid #e8e8e8;border-radius:12px;padding:1rem 1.25rem;margin-top:.5rem}
@@ -85,6 +85,17 @@
     .btn-logout{background:none;border:1px solid #ccc;border-radius:6px;padding:4px 10px;font-size:.75rem;color:#888;cursor:pointer}
     .btn-logout:hover{background:#f0f0f0}
     .deadline-warn{font-size:.72rem;color:#e65100;margin-top:.4rem;display:flex;align-items:center;gap:4px}
+    /* Modal de confirmação */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem}
+    .modal-box{background:#fff;border-radius:16px;padding:1.75rem 1.5rem;max-width:320px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.18);text-align:center}
+    .modal-icon{font-size:2.2rem;margin-bottom:.75rem}
+    .modal-title{font-size:1rem;font-weight:700;color:#1a1a1a;margin-bottom:.4rem}
+    .modal-msg{font-size:.85rem;color:#666;margin-bottom:1.25rem;line-height:1.5}
+    .modal-score{font-size:1.6rem;font-weight:700;color:var(--eb);margin-bottom:1rem}
+    .modal-btns{display:flex;gap:.75rem}
+    .modal-btn-cancel{flex:1;padding:.65rem;border:1px solid #d0d0d0;border-radius:8px;background:#fff;color:#555;cursor:pointer;font-size:.85rem;font-family:inherit;font-weight:500}
+    .modal-btn-ok{flex:1;padding:.65rem;border:none;border-radius:8px;background:var(--eb);color:#fff;cursor:pointer;font-size:.85rem;font-family:inherit;font-weight:600}
+    .modal-btn-ok:hover{background:var(--em)}
   </style>
 </head>
 <body>
@@ -100,20 +111,24 @@
     </div>
   </div>
 
+  <!-- LOGIN -->
   <div id="loginScreen">
-    <div class="login-screen">
-      <div style="width:52px;height:52px;background:var(--el);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .9rem">
-        <i class="ti ti-ball-football" style="font-size:26px;color:var(--eb)"></i>
+    <div class="login-box">
+      <h2>Quem é você?</h2>
+      <label class="field-label">Selecione seu nome</label>
+      <select class="user-select" id="nameSelect" onchange="onNameSelect()">
+        <option value="">— Selecione —</option>
+      </select>
+      <div class="pwd-row" id="pwdRow">
+        <label class="field-label">Sua senha</label>
+        <input class="txt-input" type="password" id="loginPwd" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')doLogin()"/>
+        <p class="lock-err" id="loginErr">Senha incorreta. Tente novamente.</p>
+        <button class="btn-primary full" onclick="doLogin()" style="margin-top:.75rem">Entrar</button>
       </div>
-      <p style="font-size:1.1rem;font-weight:700;color:#1a1a1a;margin-bottom:.3rem">Bem-vindo ao Bolão!</p>
-      <p style="font-size:.82rem;color:#888;margin-bottom:1.5rem">Digite sua senha para acessar seus palpites</p>
-      <input class="txt-input" type="password" id="loginPwd" placeholder="Digite sua senha" style="margin-bottom:.75rem;text-align:center" onkeydown="if(event.key==='Enter')doLogin()"/>
-      <p class="lock-err" id="loginErr">Senha incorreta. Tente novamente.</p>
-      <button class="btn-primary full" onclick="doLogin()">Entrar</button>
-      
     </div>
   </div>
 
+  <!-- APP -->
   <div id="mainApp" style="display:none">
     <div id="statusBar" class="status-bar loading">
       <div class="dot dot-blue"></div><span>Conectando...</span>
@@ -142,70 +157,66 @@
     </div>
 
     <div id="sec-admin" class="section">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
-        <p class="section-title" style="margin:0">Painel do organizador</p>
-      </div>
       <div class="admin-tabs">
         <button class="admin-tab active" onclick="showAdminTab('resultados')">Resultados</button>
         <button class="admin-tab" onclick="showAdminTab('jogos')">Gerenciar Jogos</button>
       </div>
       <div id="at-resultados">
-        <div class="info-box"><i class="ti ti-info-circle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>Ao salvar o resultado real, o jogo trava para todos. Jogos também travam automaticamente no dia do jogo.</div>
+        <div class="info-box"><i class="ti ti-info-circle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>Salve o resultado de cada jogo. Você pode corrigir a qualquer momento salvando novamente.</div>
         <div id="adminGames"></div>
-        <button class="btn-primary full" onclick="saveRealScores()" style="margin-top:.75rem"><i class="ti ti-device-floppy" style="margin-right:5px"></i>Salvar resultados</button>
       </div>
       <div id="at-jogos" style="display:none">
         <div id="editGamesList"></div>
         <div class="add-game-box">
           <p style="font-size:.82rem;font-weight:600;color:#1a1a1a;margin-bottom:.75rem">Adicionar novo jogo</p>
           <div class="edit-row">
-            <div><label class="field-label">ID do jogo</label><input class="txt-input" id="new-id" placeholder="ex: B07"/></div>
-            <div><label class="field-label">Data (DD/MM/AAAA)</label><input class="txt-input" id="new-date" placeholder="ex: 28/06/2026"/></div>
+            <div><label class="edit-label">ID do jogo</label><input class="txt-input" id="new-id" placeholder="ex: B07"/></div>
+            <div><label class="edit-label">Adversário</label><input class="txt-input" id="new-adv" placeholder="ex: Argentina"/></div>
           </div>
-          <div style="margin-bottom:.5rem"><label class="field-label">Adversário do Brasil</label><input class="txt-input" id="new-adv" placeholder="ex: Argentina"/></div>
-          <button class="btn-primary" onclick="addGame()" style="margin-top:.25rem"><i class="ti ti-plus" style="margin-right:4px"></i>Adicionar</button>
+          <div><label class="edit-label">Data (DD/MM/AAAA) — o jogo trava automaticamente neste dia</label><input class="txt-input" id="new-date" placeholder="ex: 28/06/2026"/></div>
+          <button class="btn-primary" onclick="addGame()" style="margin-top:.75rem"><i class="ti ti-plus" style="margin-right:4px"></i>Adicionar jogo</button>
         </div>
-        <button class="btn-primary full" onclick="saveGames()" style="margin-top:.75rem"><i class="ti ti-device-floppy" style="margin-right:5px"></i>Salvar alterações nos jogos</button>
+        <button class="btn-primary full" onclick="saveGames()" style="margin-top:.75rem"><i class="ti ti-device-floppy" style="margin-right:5px"></i>Salvar alterações</button>
       </div>
     </div>
 
     <div id="sec-regras" class="section">
       <p class="section-title">Sistema de pontuação</p>
       <div class="rules-card">
-        <div class="rule-row">
-          <div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-crosshair" style="color:var(--ea);margin-right:5px"></i>Placar exato</div><div class="rule-example">ex: chutou 2×1, deu 2×1</div></div>
-          <span class="rule-pts">5 pts</span>
-        </div>
-        <div class="rule-row">
-          <div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-circle-check" style="color:var(--ea);margin-right:5px"></i>Acerta gols de um lado</div><div class="rule-example">ex: chutou 2×1, deu 2×0</div></div>
-          <span class="rule-pts">3 pts</span>
-        </div>
-        <div class="rule-row">
-          <div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-trophy" style="color:var(--ea);margin-right:5px"></i>Acerta só o vencedor</div><div class="rule-example">ex: chutou vitória do Brasil, Brasil ganhou</div></div>
-          <span class="rule-pts">1 pt</span>
-        </div>
-        <div class="rule-row">
-          <div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-x" style="color:#c62828;margin-right:5px"></i>Errou o vencedor</div><div class="rule-example">ex: chutou vitória do Brasil, adversário venceu</div></div>
-          <span class="rule-pts" style="color:#c62828">0 pts</span>
-        </div>
+        <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-crosshair" style="color:var(--ea);margin-right:5px"></i>Placar exato</div><div class="rule-example">ex: chutou 2×1, deu 2×1</div></div><span class="rule-pts">5 pts</span></div>
+        <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-circle-check" style="color:var(--ea);margin-right:5px"></i>Acerta gols de um lado</div><div class="rule-example">ex: chutou 2×1, deu 2×0</div></div><span class="rule-pts">3 pts</span></div>
+        <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-trophy" style="color:var(--ea);margin-right:5px"></i>Acerta só o vencedor</div><div class="rule-example">ex: chutou vitória do Brasil, Brasil ganhou</div></div><span class="rule-pts">1 pt</span></div>
+        <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-x" style="color:#c62828;margin-right:5px"></i>Errou o vencedor</div><div class="rule-example">ex: chutou vitória do Brasil, adversário venceu</div></div><span class="rule-pts" style="color:#c62828">0 pts</span></div>
       </div>
       <div class="rules-card">
-        <div class="rule-row">
-          <div><div style="font-size:.85rem;font-weight:600;color:#1a1a1a"><i class="ti ti-lock" style="color:var(--ea);margin-right:5px"></i>Quando os palpites travam</div>
-          <div class="rule-example">• Ao confirmar manualmente<br>• No dia do jogo (automático)<br>• Quando o admin salvar o resultado</div></div>
-        </div>
+        <div class="rule-row"><div><div style="font-size:.85rem;font-weight:600;color:#1a1a1a"><i class="ti ti-lock" style="color:var(--ea);margin-right:5px"></i>Quando os palpites travam</div><div class="rule-example">• Ao confirmar manualmente<br>• No dia do jogo (automático)<br>• Quando o admin salvar o resultado</div></div></div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- MODAL DE CONFIRMAÇÃO -->
+<div class="modal-overlay" id="modalOverlay" style="display:none">
+  <div class="modal-box">
+    <div class="modal-icon">⚽</div>
+    <div class="modal-title">Confirmar palpite?</div>
+    <div class="modal-msg">Você está prestes a confirmar o placar abaixo. Após confirmar, não será possível alterar.</div>
+    <div class="modal-score" id="modalScore"></div>
+    <div class="modal-btns">
+      <button class="modal-btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="modal-btn-ok" onclick="doConfirmPalpite()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
 const ADMIN_PWD="Esfera2025@";
+const ADMIN_IDS=["F01"]; // Ingrid tem acesso admin
 
-// Datas no formato DD/MM/AAAA para cálculo automático de travamento
 const users=[
   {id:"F01",name:"Ingrid Paiva",pwd:"Ingrid26EB"},
   {id:"F02",name:"Marcio Peres",pwd:"Marcio26EB"},
@@ -269,61 +280,29 @@ firebase.initializeApp({
 const db=firebase.database();
 let state={palpites:{},locked:{},realScores:{},games:null};
 let currentUser=null;
+let pendingConfirm=null; // guarda o palpite pendente de confirmação
 
-// Verifica se o jogo está travado por data (no dia do jogo ou depois)
-function isGameDateLocked(g){
-  const fd=g.fullDate||'';
-  if(!fd)return false;
-  const parts=fd.split('/');
-  if(parts.length!==3)return false;
-  const gameDate=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]),0,0,0,0);
-  const today=new Date();
-  today.setHours(0,0,0,0);
-  return today>=gameDate;
-}
+// Popula select
+const nameSelect=document.getElementById('nameSelect');
+users.forEach(function(u){var o=document.createElement('option');o.value=u.id;o.textContent=u.name;nameSelect.appendChild(o);});
 
-function isGameClosed(g){
-  return !!(state.realScores&&state.realScores[g.id]&&state.realScores[g.id].brasil!==undefined);
-}
-
-function isLocked(uid,gid){return !!(state.locked[uid]||{})[gid];}
-
-function isInputDisabled(uid,g){
-  return isLocked(uid,g.id)||isGameDateLocked(g)||isGameClosed(g);
-}
-
-function getLockReason(uid,g){
-  if(isGameClosed(g))return 'encerrado';
-  if(isGameDateLocked(g))return 'dia do jogo';
-  if(isLocked(uid,g.id))return 'travado';
-  return null;
-}
-
-function setStatus(type,msg){
-  const el=document.getElementById('statusBar');
-  el.className='status-bar '+type;
-  const dot=type==='ok'?'dot-green':type==='err'?'dot-red':'dot-blue';
-  el.innerHTML=`<div class="dot ${dot}"></div><span>${msg}</span>`;
-}
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
-}
-function calcPts(pb,pa,rb,ra){
-  if(rb===null||ra===null)return null;
-  if(pb===rb&&pa===ra)return 5;
-  if(pb===rb||pa===ra)return 3;
-  if(Math.sign(pb-pa)===Math.sign(rb-ra))return 1;
-  return 0;
+function onNameSelect(){
+  var val=nameSelect.value;
+  var pwdRow=document.getElementById('pwdRow');
+  if(val){pwdRow.style.display='block';document.getElementById('loginPwd').value='';document.getElementById('loginErr').style.display='none';document.getElementById('loginPwd').focus();}
+  else pwdRow.style.display='none';
 }
 
 function doLogin(){
-  const pwd=document.getElementById('loginPwd').value.trim();
+  var pwd=document.getElementById('loginPwd').value.trim();
+  var selectedId=nameSelect.value;
   if(pwd===ADMIN_PWD){currentUser={id:'ADMIN',name:'Administrador',isAdmin:true};startApp();return;}
-  const user=users.find(u=>u.pwd===pwd);
-  if(user){currentUser={...user,isAdmin:false};startApp();}
-  else{
+  var user=users.find(function(u){return u.id===selectedId;});
+  if(user&&pwd===user.pwd){
+    var isAdmin=ADMIN_IDS.indexOf(user.id)>=0;
+    currentUser=Object.assign({},user,{isAdmin:isAdmin});
+    startApp();
+  } else {
     document.getElementById('loginErr').style.display='block';
     document.getElementById('loginPwd').value='';
     document.getElementById('loginPwd').focus();
@@ -334,13 +313,12 @@ function startApp(){
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('mainApp').style.display='block';
   document.getElementById('welcomeName').textContent='Olá, '+currentUser.name.split(' ')[0]+'!';
-  if(currentUser.isAdmin){document.getElementById('adminTab').style.display='block';showTab('admin');}
-  else renderGames();
-  db.ref('.info/connected').on('value',snap=>{
+  if(currentUser.isAdmin)document.getElementById('adminTab').style.display='block';
+  db.ref('.info/connected').on('value',function(snap){
     setStatus(snap.val()?'ok':'err',snap.val()?'Conectado — tempo real':'Sem conexão');
   });
-  db.ref('/').on('value',snap=>{
-    const data=snap.val()||{};
+  db.ref('/').on('value',function(snap){
+    var data=snap.val()||{};
     state.palpites=data.palpites||{};
     state.locked=data.locked||{};
     state.realScores=data.realScores||{};
@@ -349,226 +327,290 @@ function startApp(){
     if(document.querySelector('#sec-ranking.active'))renderRanking();
     if(document.querySelector('#at-resultados:not([style*="none"])'))renderAdmin();
   });
-  db.ref('games').once('value',snap=>{if(!snap.val())db.ref('games').set(defaultGames);});
+  db.ref('games').once('value',function(snap){if(!snap.val())db.ref('games').set(defaultGames);});
+  if(currentUser.isAdmin)showTab('admin');
+  else renderGames();
 }
 
 function doLogout(){
   currentUser=null;
   document.getElementById('mainApp').style.display='none';
   document.getElementById('loginScreen').style.display='block';
+  nameSelect.value='';
+  document.getElementById('pwdRow').style.display='none';
   document.getElementById('loginPwd').value='';
   document.getElementById('loginErr').style.display='none';
 }
 
+function setStatus(type,msg){
+  var el=document.getElementById('statusBar');
+  el.className='status-bar '+type;
+  var dot=type==='ok'?'dot-green':type==='err'?'dot-red':'dot-blue';
+  el.innerHTML='<div class="dot '+dot+'"></div><span>'+msg+'</span>';
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},2800);
+}
+
+function calcPts(pb,pa,rb,ra){
+  if(rb===null||ra===null)return null;
+  if(pb===rb&&pa===ra)return 5;
+  if(pb===rb||pa===ra)return 3;
+  if(Math.sign(pb-pa)===Math.sign(rb-ra))return 1;
+  return 0;
+}
+
 function showTab(t){
-  document.querySelectorAll('.tab').forEach(el=>{
+  document.querySelectorAll('.tab').forEach(function(el){
     el.classList.remove('active');
-    if(el.getAttribute('onclick')&&el.getAttribute('onclick').includes("'"+t+"'"))el.classList.add('active');
+    if(el.getAttribute('onclick')&&el.getAttribute('onclick').indexOf("'"+t+"'")>=0)el.classList.add('active');
   });
-  document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(function(el){el.classList.remove('active');});
   document.getElementById('sec-'+t).classList.add('active');
   if(t==='ranking')renderRanking();
   if(t==='admin')showAdminTab('resultados');
 }
 
 function showAdminTab(t){
-  document.querySelectorAll('.admin-tab').forEach((el,i)=>el.classList.toggle('active',['resultados','jogos'][i]===t));
+  document.querySelectorAll('.admin-tab').forEach(function(el,i){el.classList.toggle('active',['resultados','jogos'][i]===t);});
   document.getElementById('at-resultados').style.display=t==='resultados'?'block':'none';
   document.getElementById('at-jogos').style.display=t==='jogos'?'block':'none';
   if(t==='resultados')renderAdmin();
   if(t==='jogos')renderEditGames();
 }
 
+function isGameDateLocked(g){
+  var fd=g.fullDate||'';
+  if(!fd)return false;
+  var p=fd.split('/');
+  if(p.length!==3)return false;
+  var gameDate=new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]),0,0,0,0);
+  var today=new Date();today.setHours(0,0,0,0);
+  return today>=gameDate;
+}
+function isGameClosed(g){return !!(state.realScores&&state.realScores[g.id]&&state.realScores[g.id].brasil!==undefined);}
+function isLocked(uid,gid){return !!(state.locked[uid]||{})[gid];}
+function isInputDisabled(uid,g){return isLocked(uid,g.id)||isGameDateLocked(g)||isGameClosed(g);}
+function getLockReason(uid,g){
+  if(isGameClosed(g))return 'encerrado';
+  if(isGameDateLocked(g))return 'dia do jogo';
+  if(isLocked(uid,g.id))return 'travado';
+  return null;
+}
 function getPalpite(uid,gid){return(state.palpites[uid]||{})[gid]||{brasil:'',adv:''};}
 
-function confirmPalpite(gid){
-  const uid=currentUser.id;
-  const bEl=document.getElementById(`inp_${gid}_b`);
-  const aEl=document.getElementById(`inp_${gid}_a`);
+// MODAL de confirmação
+function askConfirmPalpite(gid){
+  var bEl=document.getElementById('inp_'+gid+'_b');
+  var aEl=document.getElementById('inp_'+gid+'_a');
   if(!bEl||!aEl||bEl.value===''||aEl.value===''){showToast('Preencha os dois campos antes de confirmar.');return;}
-  const btn=document.getElementById(`btn_${gid}`);
+  var brasil=parseInt(bEl.value);
+  var adv=parseInt(aEl.value);
+  var g=getGame(gid);
+  var adversario=g?g.adv||'Adversário':'Adversário';
+  pendingConfirm={gid:gid,brasil:brasil,adv:adv};
+  document.getElementById('modalScore').textContent='🇧🇷 Brasil '+brasil+' × '+adv+' '+adversario;
+  document.getElementById('modalOverlay').style.display='flex';
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').style.display='none';
+  pendingConfirm=null;
+}
+
+function doConfirmPalpite(){
+  if(!pendingConfirm)return;
+  var uid=currentUser.id;
+  var gid=pendingConfirm.gid;
+  var brasil=pendingConfirm.brasil;
+  var adv=pendingConfirm.adv;
+  closeModal();
+  var btn=document.getElementById('btn_'+gid);
   if(btn){btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Salvando...';}
   Promise.all([
-    db.ref(`palpites/${uid}/${gid}`).set({brasil:parseInt(bEl.value),adv:parseInt(aEl.value)}),
-    db.ref(`locked/${uid}/${gid}`).set(true)
-  ]).then(()=>showToast('Palpite confirmado e travado!'))
-    .catch(e=>{showToast('Erro: '+e.message);if(btn){btn.disabled=false;btn.innerHTML='<i class="ti ti-check"></i> Confirmar palpite';}});
+    db.ref('palpites/'+uid+'/'+gid).set({brasil:brasil,adv:adv}),
+    db.ref('locked/'+uid+'/'+gid).set(true)
+  ]).then(function(){showToast('Palpite confirmado e travado!');})
+    .catch(function(e){showToast('Erro: '+e.message);if(btn){btn.disabled=false;btn.innerHTML='<i class="ti ti-check"></i> Confirmar palpite';}});
+}
+
+function getGame(gid){
+  var games=state.games&&state.games.length?state.games:defaultGames;
+  return games.find(function(g){return g.id===gid;})||null;
 }
 
 function formatDeadline(g){
   if(!g.fullDate)return '';
-  const parts=g.fullDate.split('/');
-  if(parts.length!==3)return '';
-  const gameDate=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]),0,0,0,0);
-  const today=new Date();today.setHours(0,0,0,0);
-  const diff=Math.ceil((gameDate-today)/(1000*60*60*24));
-  if(diff===1)return '<span class="deadline-warn"><i class="ti ti-alert-triangle" style="font-size:12px"></i>Trava amanhã!</span>';
-  if(diff===0)return '<span class="deadline-warn"><i class="ti ti-alert-triangle" style="font-size:12px"></i>Trava hoje!</span>';
+  var p=g.fullDate.split('/');
+  if(p.length!==3)return '';
+  var gameDate=new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]),0,0,0,0);
+  var today=new Date();today.setHours(0,0,0,0);
+  var diff=Math.ceil((gameDate-today)/(1000*60*60*24));
+  if(diff===1)return '<div class="deadline-warn"><i class="ti ti-alert-triangle" style="font-size:12px"></i>Trava amanhã!</div>';
+  if(diff===0)return '<div class="deadline-warn"><i class="ti ti-alert-triangle" style="font-size:12px"></i>Trava hoje!</div>';
   return '';
 }
 
 function renderGames(){
-  const el=document.getElementById('gamesList');
+  var el=document.getElementById('gamesList');
   if(!currentUser||currentUser.isAdmin)return;
-  const uid=currentUser.id;
-  const games=state.games&&state.games.length?state.games:defaultGames;
-  let html='';
-  games.forEach(g=>{
-    const p=getPalpite(uid,g.id);
-    const disabled=isInputDisabled(uid,g);
-    const reason=getLockReason(uid,g);
-    const real=state.realScores[g.id];
-    const rb=real!=null?real.brasil:null,ra=real!=null?real.adv:null;
-    let ptsHtml='';
+  var uid=currentUser.id;
+  var games=state.games&&state.games.length?state.games:defaultGames;
+  var html='';
+  games.forEach(function(g){
+    var p=getPalpite(uid,g.id);
+    var disabled=isInputDisabled(uid,g);
+    var reason=getLockReason(uid,g);
+    var real=state.realScores[g.id];
+    var rb=real!=null?real.brasil:null,ra=real!=null?real.adv:null;
+    var ptsHtml='';
     if(disabled&&p.brasil!==''&&p.adv!==''){
-      const pts=calcPts(parseInt(p.brasil),parseInt(p.adv),rb,ra);
-      if(pts!==null)ptsHtml=`<span class="result-badge">${pts} pt${pts!==1?'s':''}</span>`;
+      var pts=calcPts(parseInt(p.brasil),parseInt(p.adv),rb,ra);
+      if(pts!==null)ptsHtml='<span class="result-badge">'+pts+' pt'+(pts!==1?'s':'')+'</span>';
     }
-    let badge='';
-    if(reason==='encerrado')badge=`<span class="badge-encerrado"><i class="ti ti-lock" style="font-size:10px"></i> encerrado</span>`;
-    else if(reason==='dia do jogo')badge=`<span class="badge-encerrado"><i class="ti ti-lock" style="font-size:10px"></i> dia do jogo</span>`;
-    else if(reason==='travado')badge=`<span class="badge-locked"><i class="ti ti-lock" style="font-size:10px"></i> travado</span>`;
-    const realHtml=rb!==null?`<div class="real-score-area"><span class="real-label">Resultado real:</span><span style="font-size:.88rem;font-weight:700;color:var(--eb);margin-left:8px">${rb} × ${ra}</span></div>`:'';
-    const deadline=!disabled?formatDeadline(g):'';
-    const confirmBtn=!disabled?`<button class="btn-confirm" id="btn_${g.id}" onclick="confirmPalpite('${g.id}')"><i class="ti ti-check" style="margin-right:4px"></i>Confirmar palpite</button>`:'';
-    html+=`<div class="game-card${disabled?' locked':''}">
-      <div class="game-header">
-        <div style="display:flex;align-items:center;gap:6px"><span class="game-id">${g.id}</span>${badge}</div>
-        <div style="display:flex;align-items:center;gap:6px">${ptsHtml}<span class="game-date">${g.date||'—'}</span></div>
-      </div>
-      <div class="game-teams">
-        <span class="team-name">🇧🇷 Brasil</span>
-        <div class="score-area">
-          <input class="score-input" id="inp_${g.id}_b" type="number" min="0" max="20" value="${p.brasil!==''?p.brasil:''}" placeholder="—" ${disabled?'disabled':''}/>
-          <span class="score-sep">×</span>
-          <input class="score-input" id="inp_${g.id}_a" type="number" min="0" max="20" value="${p.adv!==''?p.adv:''}" placeholder="—" ${disabled?'disabled':''}/>
-        </div>
-        <span class="team-name right">${g.adv||'Adversário'}</span>
-      </div>
-      ${realHtml}${deadline}${confirmBtn}
-    </div>`;
+    var badge='';
+    if(reason==='encerrado')badge='<span class="badge-encerrado"><i class="ti ti-lock" style="font-size:10px"></i> encerrado</span>';
+    else if(reason==='dia do jogo')badge='<span class="badge-encerrado"><i class="ti ti-lock" style="font-size:10px"></i> dia do jogo</span>';
+    else if(reason==='travado')badge='<span class="badge-locked"><i class="ti ti-lock" style="font-size:10px"></i> travado</span>';
+    var realHtml=rb!==null?'<div class="real-score-area"><span class="real-label">Resultado real:</span><span style="font-size:.88rem;font-weight:700;color:var(--eb);margin-left:8px">'+rb+' × '+ra+'</span></div>':'';
+    var deadline=!disabled?formatDeadline(g):'';
+    var confirmBtn=!disabled?'<button class="btn-confirm" id="btn_'+g.id+'" onclick="askConfirmPalpite(\''+g.id+'\')"><i class="ti ti-check" style="margin-right:4px"></i>Confirmar palpite</button>':'';
+    var bVal=p.brasil!==''?p.brasil:'';
+    var aVal=p.adv!==''?p.adv:'';
+    html+='<div class="game-card'+(disabled?' locked':'')+'">'+
+      '<div class="game-header">'+
+        '<div style="display:flex;align-items:center;gap:6px"><span class="game-id">'+g.id+'</span>'+badge+'</div>'+
+        '<div style="display:flex;align-items:center;gap:6px">'+ptsHtml+'<span class="game-date">'+(g.date||'—')+'</span></div>'+
+      '</div>'+
+      '<div class="game-teams">'+
+        '<span class="team-name">🇧🇷 Brasil</span>'+
+        '<div class="score-area">'+
+          '<input class="score-input" id="inp_'+g.id+'_b" type="number" min="0" max="20" value="'+bVal+'" placeholder="—" '+(disabled?'disabled':'')+' />'+
+          '<span class="score-sep">×</span>'+
+          '<input class="score-input" id="inp_'+g.id+'_a" type="number" min="0" max="20" value="'+aVal+'" placeholder="—" '+(disabled?'disabled':'')+' />'+
+        '</div>'+
+        '<span class="team-name right">'+(g.adv||'Adversário')+'</span>'+
+      '</div>'+
+      realHtml+deadline+confirmBtn+
+    '</div>';
   });
   el.innerHTML=html;
 }
 
 function getUserTotalPoints(uid){
-  let total=0;
-  const games=state.games&&state.games.length?state.games:defaultGames;
-  games.forEach(g=>{
-    if(!isLocked(uid,g.id)&&!isGameDateLocked(g)&&!isGameClosed(g))return;
-    const p=getPalpite(uid,g.id);
-    const real=state.realScores[g.id];
+  var total=0;
+  var games=state.games&&state.games.length?state.games:defaultGames;
+  games.forEach(function(g){
+    var p=getPalpite(uid,g.id);
+    var real=state.realScores[g.id];
     if(!real||p.brasil===''||p.adv==='')return;
-    const pts=calcPts(parseInt(p.brasil),parseInt(p.adv),real.brasil,real.adv);
+    var pts=calcPts(parseInt(p.brasil),parseInt(p.adv),real.brasil,real.adv);
     if(pts!==null)total+=pts;
   });
   return total;
 }
 
 function renderRanking(){
-  const el=document.getElementById('rankingContent');
-  const sorted=[...users].map(u=>({...u,pts:getUserTotalPoints(u.id)})).sort((a,b)=>b.pts-a.pts);
-  if(sorted.every(u=>u.pts===0)){el.innerHTML='<div class="no-data">Nenhum resultado disponível ainda.</div>';return;}
-  const medals=['🥇','🥈','🥉'];
-  let html=`<table class="ranking-table"><thead><tr><th>#</th><th>Participante</th><th style="text-align:right">Pontos</th></tr></thead><tbody>`;
-  sorted.forEach((u,i)=>{html+=`<tr><td>${medals[i]||`${i+1}º`}</td><td>${u.name}</td><td style="text-align:right"><span class="points-badge">${u.pts}</span></td></tr>`;});
+  var el=document.getElementById('rankingContent');
+  var sorted=users.map(function(u){return Object.assign({},u,{pts:getUserTotalPoints(u.id)});}).sort(function(a,b){return b.pts-a.pts;});
+  if(sorted.every(function(u){return u.pts===0;})){el.innerHTML='<div class="no-data">Nenhum resultado disponível ainda.</div>';return;}
+  var medals=['🥇','🥈','🥉'];
+  var html='<table class="ranking-table"><thead><tr><th>#</th><th>Participante</th><th style="text-align:right">Pontos</th></tr></thead><tbody>';
+  sorted.forEach(function(u,i){html+='<tr><td>'+(medals[i]||((i+1)+'º'))+'</td><td>'+u.name+'</td><td style="text-align:right"><span class="points-badge">'+u.pts+'</span></td></tr>';});
   html+='</tbody></table>';el.innerHTML=html;
 }
 
 function renderAdmin(){
-  const el=document.getElementById('adminGames');
-  const games=state.games&&state.games.length?state.games:defaultGames;
-  let html='';
-  games.forEach(g=>{
-    const r=(state.realScores&&state.realScores[g.id])||{brasil:'',adv:''};
-    const dateLocked=isGameDateLocked(g);
-    html+=`<div class="game-card">
-      <div class="game-header">
-        <span class="game-id">${g.id}</span>
-        <div style="display:flex;align-items:center;gap:6px">
-          ${dateLocked?'<span class="badge-encerrado"><i class="ti ti-lock" style="font-size:10px"></i> dia do jogo</span>':''}
-          <span class="game-date">${g.date||'—'}</span>
-        </div>
-      </div>
-      <div class="game-teams">
-        <span class="team-name">🇧🇷 Brasil</span>
-        <div class="score-area">
-          <input class="score-input" type="number" min="0" max="20" value="${r.brasil!==undefined&&r.brasil!==''?r.brasil:''}" id="ar_${g.id}_b" placeholder="—"/>
-          <span class="score-sep">×</span>
-          <input class="score-input" type="number" min="0" max="20" value="${r.adv!==undefined&&r.adv!==''?r.adv:''}" id="ar_${g.id}_a" placeholder="—"/>
-        </div>
-        <span class="team-name right">${g.adv||'Adversário'}</span>
-      </div>
-    </div>`;
+  var el=document.getElementById('adminGames');
+  var games=state.games&&state.games.length?state.games:defaultGames;
+  var html='';
+  games.forEach(function(g){
+    var r=(state.realScores&&state.realScores[g.id])||{brasil:'',adv:''};
+    var dateLocked=isGameDateLocked(g);
+    html+='<div class="game-card">'+
+      '<div class="game-header">'+
+        '<span class="game-id">'+g.id+'</span>'+
+        '<div style="display:flex;align-items:center;gap:6px">'+
+          (dateLocked?'<span class="badge-encerrado"><i class="ti ti-lock" style="font-size:10px"></i> dia do jogo</span>':'')+
+          '<span class="game-date">'+(g.date||'—')+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="game-teams">'+
+        '<span class="team-name">🇧🇷 Brasil</span>'+
+        '<div class="score-area">'+
+          '<input class="score-input" type="number" min="0" max="20" value="'+(r.brasil!==undefined&&r.brasil!==''?r.brasil:'')+'" id="ar_'+g.id+'_b" placeholder="—"/>'+
+          '<span class="score-sep">×</span>'+
+          '<input class="score-input" type="number" min="0" max="20" value="'+(r.adv!==undefined&&r.adv!==''?r.adv:'')+'" id="ar_'+g.id+'_a" placeholder="—"/>'+
+        '</div>'+
+        '<span class="team-name right">'+(g.adv||'Adversário')+'</span>'+
+      '</div>'+
+      '<button class="btn-primary full" style="margin-top:.65rem;font-size:.82rem" onclick="saveOneResult(\''+g.id+'\')">'+
+        '<i class="ti ti-device-floppy" style="margin-right:5px"></i>Salvar resultado'+
+      '</button>'+
+    '</div>';
   });
   el.innerHTML=html;
 }
 
-function saveRealScores(){
-  const games=state.games&&state.games.length?state.games:defaultGames;
-  const updates={};let count=0;
-  games.forEach(g=>{
-    const b=document.getElementById(`ar_${g.id}_b`),a=document.getElementById(`ar_${g.id}_a`);
-    if(b&&a&&b.value!==''&&a.value!==''){updates[`realScores/${g.id}`]={brasil:parseInt(b.value),adv:parseInt(a.value)};count++;}
-  });
-  if(count===0){showToast('Nenhum placar preenchido.');return;}
-  db.ref('/').update(updates).then(()=>showToast(`${count} resultado${count>1?'s':''} salvo${count>1?'s':''}!`))
-    .catch(e=>showToast('Erro: '+e.message));
+function saveOneResult(gid){
+  var b=document.getElementById('ar_'+gid+'_b'),a=document.getElementById('ar_'+gid+'_a');
+  if(!b||!a||b.value===''||a.value===''){showToast('Preencha os dois placares.');return;}
+  db.ref('realScores/'+gid).set({brasil:parseInt(b.value),adv:parseInt(a.value)})
+    .then(function(){showToast('Resultado salvo!');})
+    .catch(function(e){showToast('Erro: '+e.message);});
 }
 
 function renderEditGames(){
-  const el=document.getElementById('editGamesList');
-  const games=state.games&&state.games.length?state.games:defaultGames;
-  let html='';
-  games.forEach((g,i)=>{
-    html+=`<div class="game-edit-card">
-      <div class="card-top"><span class="game-id">${g.id}</span><button class="delete-btn" onclick="deleteGame(${i})"><i class="ti ti-trash"></i> Remover</button></div>
-      <div class="edit-row">
-        <div><label class="field-label">Adversário</label><input class="txt-input" value="${g.adv||''}" placeholder="ex: Argentina" onchange="state.games[${i}].adv=this.value"/></div>
-        <div><label class="field-label">Data exibição</label><input class="txt-input" value="${g.date||''}" placeholder="ex: 28/Jun" onchange="state.games[${i}].date=this.value"/></div>
-      </div>
-      <div><label class="field-label">Data completa (DD/MM/AAAA) — para travamento automático</label><input class="txt-input" value="${g.fullDate||''}" placeholder="ex: 28/06/2026" onchange="state.games[${i}].fullDate=this.value"/></div>
-    </div>`;
+  var el=document.getElementById('editGamesList');
+  var games=state.games&&state.games.length?state.games:defaultGames;
+  var html='';
+  games.forEach(function(g,i){
+    html+='<div class="game-edit-card">'+
+      '<div class="card-top"><span class="game-id">'+g.id+'</span></div>'+
+      '<div class="edit-row">'+
+        '<div><label class="edit-label">Adversário</label><input class="txt-input" value="'+(g.adv||'')+'" placeholder="ex: Argentina" onchange="state.games['+i+'].adv=this.value"/></div>'+
+        '<div><label class="edit-label">Data exibição</label><input class="txt-input" value="'+(g.date||'')+'" placeholder="ex: 28/Jun" onchange="state.games['+i+'].date=this.value"/></div>'+
+      '</div>'+
+      '<div><label class="edit-label">Data completa (DD/MM/AAAA) — travamento automático</label>'+
+        '<input class="txt-input" value="'+(g.fullDate||'')+'" placeholder="ex: 28/06/2026" onchange="state.games['+i+'].fullDate=this.value"/></div>'+
+    '</div>';
   });
   el.innerHTML=html;
 }
 
-function deleteGame(i){
-  if(!confirm('Remover este jogo?'))return;
-  state.games.splice(i,1);
-  db.ref('games').set(state.games).then(()=>{renderEditGames();showToast('Jogo removido.');});
-}
-
 function addGame(){
-  const id=document.getElementById('new-id').value.trim();
-  const adv=document.getElementById('new-adv').value.trim();
-  const fullDate=document.getElementById('new-date').value.trim();
+  var id=document.getElementById('new-id').value.trim();
+  var adv=document.getElementById('new-adv').value.trim();
+  var fullDate=document.getElementById('new-date').value.trim();
   if(!id){showToast('Informe o ID do jogo.');return;}
-  const games=state.games&&state.games.length?[...state.games]:[];
-  if(games.find(g=>g.id===id)){showToast('Já existe um jogo com esse ID.');return;}
-  // Formata data de exibição a partir da data completa
-  let dateDisplay='';
+  var games=state.games&&state.games.length?state.games.slice():[];
+  if(games.find(function(g){return g.id===id;})){showToast('Já existe um jogo com esse ID.');return;}
+  var dateDisplay='';
   if(fullDate){
-    const p=fullDate.split('/');
-    const months=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-    if(p.length===3)dateDisplay=`${p[0]}/${months[parseInt(p[1])-1]}`;
+    var p=fullDate.split('/');
+    var months=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    if(p.length===3)dateDisplay=p[0]+'/'+months[parseInt(p[1])-1];
   }
-  games.push({id,adv,date:dateDisplay,fullDate});
-  db.ref('games').set(games).then(()=>{
+  games.push({id:id,adv:adv,date:dateDisplay,fullDate:fullDate});
+  db.ref('games').set(games).then(function(){
     document.getElementById('new-id').value='';
     document.getElementById('new-adv').value='';
     document.getElementById('new-date').value='';
-    renderEditGames();showToast(`Jogo ${id} adicionado!`);
+    renderEditGames();showToast('Jogo '+id+' adicionado!');
   });
 }
 
 function saveGames(){
   db.ref('games').set(state.games)
-    .then(()=>{showToast('Jogos salvos!');renderGames();})
-    .catch(e=>showToast('Erro: '+e.message));
+    .then(function(){showToast('Jogos salvos!');})
+    .catch(function(e){showToast('Erro: '+e.message);});
 }
 
-document.getElementById('loginPwd').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('loginPwd').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 </script>
 </body>
 </html>
