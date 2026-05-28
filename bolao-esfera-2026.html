@@ -96,6 +96,36 @@
     .modal-btn-cancel{flex:1;padding:.65rem;border:1px solid #d0d0d0;border-radius:8px;background:#fff;color:#555;cursor:pointer;font-size:.85rem;font-family:inherit;font-weight:500}
     .modal-btn-ok{flex:1;padding:.65rem;border:none;border-radius:8px;background:var(--eb);color:#fff;cursor:pointer;font-size:.85rem;font-family:inherit;font-weight:600}
     .modal-btn-ok:hover{background:var(--em)}
+  /* PÓDIO MODAL */
+  .podium-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:flex;align-items:center;justify-content:center;padding:1rem}
+  .podium-box{background:#fff;border-radius:20px;padding:2rem 1.5rem;max-width:340px;width:100%;text-align:center;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+  .podium-title{font-size:1.3rem;font-weight:700;color:#1a1a1a;margin-bottom:.5rem}
+  .podium-msg{font-size:.9rem;color:#555;margin-bottom:1.5rem;line-height:1.5}
+  .podium-close{background:var(--eb);color:#fff;border:none;border-radius:8px;padding:.65rem 2rem;font-size:.9rem;cursor:pointer;font-weight:600}
+  .podium-close:hover{background:var(--em)}
+  /* Animação bola - 1º lugar */
+  .ball-animation{position:relative;height:80px;margin-bottom:1rem}
+  .ball{font-size:2.5rem;position:absolute;animation:ballRoll 1.8s ease-in-out infinite}
+  @keyframes ballRoll{
+    0%{left:0;transform:translateY(0) rotate(0deg)}
+    60%{left:calc(100% - 50px);transform:translateY(0) rotate(360deg)}
+    80%{left:calc(100% - 30px);transform:translateY(-20px) rotate(400deg)}
+    100%{left:calc(100% - 30px);transform:translateY(0) rotate(420deg)}
+  }
+  .goal-post{position:absolute;right:0;top:0;font-size:2rem;line-height:80px}
+  /* Animação confete - 2º lugar */
+  .confetti-container{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettiFall linear infinite}
+  @keyframes confettiFall{
+    0%{transform:translateY(-20px) rotate(0deg);opacity:1}
+    100%{transform:translateY(500px) rotate(720deg);opacity:0}
+  }
+  /* Animação troféu - 3º lugar */
+  .trophy-animation{font-size:4rem;animation:trophyGlow 1.2s ease-in-out infinite;margin-bottom:.5rem;display:block}
+  @keyframes trophyGlow{
+    0%,100%{transform:scale(1);filter:drop-shadow(0 0 8px gold)}
+    50%{transform:scale(1.15);filter:drop-shadow(0 0 20px gold)}
+  }
   </style>
 </head>
 <body>
@@ -195,6 +225,20 @@
   </div>
 </div>
 
+<!-- MODAL ADMIN RESULTADO -->
+<div class="modal-overlay" id="modalAdminOverlay" style="display:none">
+  <div class="modal-box">
+    <div class="modal-icon">📋</div>
+    <div class="modal-title">Salvar resultado oficial?</div>
+    <div class="modal-msg">Após salvar, os palpites de todos serão travados para este jogo. Você poderá corrigir se precisar.</div>
+    <div class="modal-score" id="modalAdminScore"></div>
+    <div class="modal-btns">
+      <button class="modal-btn-cancel" onclick="closeAdminModal()">Cancelar</button>
+      <button class="modal-btn-ok" onclick="doSaveOneResult()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL DE CONFIRMAÇÃO -->
 <div class="modal-overlay" id="modalOverlay" style="display:none">
   <div class="modal-box">
@@ -206,6 +250,16 @@
       <button class="modal-btn-cancel" onclick="closeModal()">Cancelar</button>
       <button class="modal-btn-ok" onclick="doConfirmPalpite()">Confirmar</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL PÓDIO -->
+<div class="podium-overlay" id="podiumOverlay" style="display:none">
+  <div class="podium-box" id="podiumBox">
+    <div id="podiumAnimation"></div>
+    <div class="podium-title" id="podiumTitle"></div>
+    <div class="podium-msg" id="podiumMsg"></div>
+    <button class="podium-close" onclick="closePodium()">Fechar</button>
   </div>
 </div>
 
@@ -516,8 +570,8 @@ function getUserTotalPoints(uid){
 function renderRanking(){
   var el=document.getElementById('rankingContent');
   var sorted=users.map(function(u){return Object.assign({},u,{pts:getUserTotalPoints(u.id)});}).sort(function(a,b){return b.pts-a.pts;});
-  if(sorted.every(function(u){return u.pts===0;})){el.innerHTML='<div class="no-data">Nenhum resultado disponível ainda.</div>';return;}
   var medals=['🥇','🥈','🥉'];
+  checkPodium();
   var html='<table class="ranking-table"><thead><tr><th>#</th><th>Participante</th><th style="text-align:right">Pontos</th></tr></thead><tbody>';
   sorted.forEach(function(u,i){html+='<tr><td>'+(medals[i]||((i+1)+'º'))+'</td><td>'+u.name+'</td><td style="text-align:right"><span class="points-badge">'+u.pts+'</span></td></tr>';});
   html+='</tbody></table>';el.innerHTML=html;
@@ -555,11 +609,39 @@ function renderAdmin(){
   el.innerHTML=html;
 }
 
+var pendingResult=null;
+
 function saveOneResult(gid){
   var b=document.getElementById('ar_'+gid+'_b'),a=document.getElementById('ar_'+gid+'_a');
   if(!b||!a||b.value===''||a.value===''){showToast('Preencha os dois placares.');return;}
-  db.ref('realScores/'+gid).set({brasil:parseInt(b.value),adv:parseInt(a.value)})
-    .then(function(){showToast('Resultado salvo!');})
+  var brasil=parseInt(b.value),adv=parseInt(a.value);
+  var g=getGame(gid);
+  var adversario=g?g.adv||'Adversário':'Adversário';
+  pendingResult={gid:gid,brasil:brasil,adv:adv};
+  document.getElementById('modalAdminScore').textContent='🇧🇷 Brasil '+brasil+' × '+adv+' '+adversario;
+  document.getElementById('modalAdminOverlay').style.display='flex';
+}
+
+function closeAdminModal(){
+  document.getElementById('modalAdminOverlay').style.display='none';
+  pendingResult=null;
+}
+
+function doSaveOneResult(){
+  if(!pendingResult)return;
+  var gid=pendingResult.gid;
+  var resultado={brasil:pendingResult.brasil,adv:pendingResult.adv};
+  closeAdminModal();
+  var lockUpdates={};
+  users.forEach(function(u){
+    var p=(state.palpites[u.id]||{})[gid];
+    if(p&&p.brasil!==undefined&&p.adv!==undefined){
+      lockUpdates['locked/'+u.id+'/'+gid]=true;
+    }
+  });
+  lockUpdates['realScores/'+gid]=resultado;
+  db.ref('/').update(lockUpdates)
+    .then(function(){showToast('Resultado salvo! Palpites travados.');})
     .catch(function(e){showToast('Erro: '+e.message);});
 }
 
@@ -610,7 +692,60 @@ function saveGames(){
 }
 
 document.getElementById('loginPwd').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
+
+// PÓDIO
+var podiumShown=false;
+
+function checkPodium(){
+  if(podiumShown||!currentUser||currentUser.isAdmin)return;
+  var sorted=users.map(function(u){return{id:u.id,pts:getUserTotalPoints(u.id)};}).sort(function(a,b){return b.pts-a.pts;});
+  var myPos=-1;
+  for(var i=0;i<sorted.length;i++){if(sorted[i].id===currentUser.id){myPos=i;break;}}
+  if(myPos>2||myPos<0)return;
+  var myPts=sorted[myPos].pts;
+  if(myPts===0)return;
+  podiumShown=true;
+  setTimeout(function(){showPodium(myPos+1,myPts);},800);
+}
+
+function showPodium(pos,pts){
+  var anim='',title='',msg='';
+  if(pos===1){
+    anim='<div class="ball-animation"><span class="ball">⚽</span><span class="goal-post">🥅</span></div>';
+    title='🥇 Você está em 1º lugar!';
+    msg='Parabéns, '+currentUser.name.split(' ')[0]+'! Você lidera o Bolão Esfera 2026 com '+pts+' ponto'+(pts!==1?'s':'')+'. Continue assim!';
+  } else if(pos===2){
+    var confetti='<div class="confetti-container">';
+    var colors=['#f5c518','#2563a8','#1a2e4a','#e84393','#00c851'];
+    for(var i=0;i<20;i++){
+      var c=colors[i%colors.length];
+      var left=Math.random()*100;
+      var delay=Math.random()*2;
+      var dur=1.5+Math.random()*1.5;
+      confetti+='<div class="confetti-piece" style="left:'+left+'%;background:'+c+';animation-duration:'+dur+'s;animation-delay:'+delay+'s"></div>';
+    }
+    confetti+='</div>';
+    anim=confetti+'<div style="font-size:3.5rem;margin-bottom:.5rem">🎊</div>';
+    title='🥈 Você está em 2º lugar!';
+    msg='Muito bem, '+currentUser.name.split(' ')[0]+'! Você está em segundo com '+pts+' ponto'+(pts!==1?'s':'')+'. O topo está logo aí!';
+  } else if(pos===3){
+    anim='<span class="trophy-animation">🏆</span>';
+    title='🥉 Você está em 3º lugar!';
+    msg='Ótimo desempenho, '+currentUser.name.split(' ')[0]+'! Você está no pódio com '+pts+' ponto'+(pts!==1?'s':'')+'. Mantenha o ritmo!';
+  }
+  document.getElementById('podiumAnimation').innerHTML=anim;
+  document.getElementById('podiumTitle').textContent=title;
+  document.getElementById('podiumMsg').textContent=msg;
+  document.getElementById('podiumOverlay').style.display='flex';
+}
+
+function closePodium(){
+  document.getElementById('podiumOverlay').style.display='none';
+}
+
+document.getElementById('podiumOverlay').addEventListener('click',function(e){if(e.target===this)closePodium();});
 document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.getElementById('modalAdminOverlay').addEventListener('click',function(e){if(e.target===this)closeAdminModal();});
 </script>
 </body>
 </html>
