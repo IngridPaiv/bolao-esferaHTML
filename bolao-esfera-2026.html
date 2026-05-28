@@ -41,15 +41,15 @@
     .score-sep{font-size:1rem;color:#aaa;font-weight:600}
     .result-badge{font-size:.7rem;padding:3px 9px;border-radius:20px;font-weight:600;background:var(--el);color:var(--eb)}
     .badge-locked{background:#eef2ff;color:#1a2e4a;font-size:.68rem;padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:3px}
+    .badge-encerrado{background:#fff3e0;color:#e65100;font-size:.68rem;padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:3px}
     .btn-confirm{padding:.55rem 1rem;background:var(--eb);color:#fff;border:none;border-radius:8px;font-size:.82rem;cursor:pointer;font-weight:600;margin-top:.75rem;width:100%;transition:background .15s}
     .btn-confirm:hover{background:var(--em)}
     .btn-confirm:disabled{background:#ccc;cursor:not-allowed}
     .btn-primary{padding:.65rem 1rem;background:var(--eb);color:#fff;border:none;border-radius:8px;font-size:.85rem;cursor:pointer;font-weight:600;transition:background .15s}
     .btn-primary:hover{background:var(--em)}
     .btn-primary.full{width:100%;padding:.75rem}
-    select,input[type=text],input[type=password]{width:100%;padding:.65rem .85rem;border:1px solid #d0d0d0;border-radius:8px;background:#fff;color:#1a1a1a;font-size:.85rem;font-family:inherit}
-    select:focus,input[type=text]:focus,input[type=password]:focus{outline:none;border-color:var(--ea);box-shadow:0 0 0 3px rgba(37,99,168,.1)}
-    select{margin-bottom:1rem;cursor:pointer}
+    .txt-input{width:100%;padding:.65rem .85rem;border:1px solid #d0d0d0;border-radius:8px;background:#fff;color:#1a1a1a;font-size:.85rem;font-family:inherit}
+    .txt-input:focus{outline:none;border-color:var(--ea);box-shadow:0 0 0 3px rgba(37,99,168,.1)}
     .ranking-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)}
     .ranking-table th{font-size:.75rem;color:#888;font-weight:600;text-align:left;padding:.6rem .9rem;border-bottom:1px solid #eee;background:#fafafa}
     .ranking-table td{font-size:.85rem;padding:.7rem .9rem;border-bottom:1px solid #f0f0f0;color:#1a1a1a}
@@ -65,7 +65,7 @@
     .real-score-area{display:flex;align-items:center;gap:.5rem;margin-top:.6rem;padding:.5rem .75rem;background:var(--el);border-radius:8px}
     .real-label{font-size:.72rem;color:var(--eb);font-weight:600}
     .no-data{text-align:center;color:#aaa;font-size:.85rem;padding:2.5rem;background:#fafafa;border-radius:12px;border:1px solid #eee}
-    .lock-screen{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:2.5rem 1.5rem;text-align:center;max-width:320px;margin:0 auto;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+    .login-screen{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:2.5rem 1.5rem;text-align:center;max-width:340px;margin:0 auto;box-shadow:0 2px 8px rgba(0,0,0,.06)}
     .lock-err{font-size:.78rem;color:#c62828;margin-bottom:.75rem;display:none}
     .admin-tabs{display:flex;gap:6px;margin-bottom:1rem}
     .admin-tab{padding:.4rem .9rem;font-size:.8rem;cursor:pointer;border:1px solid #d0d0d0;border-radius:20px;background:none;color:#888}
@@ -78,12 +78,18 @@
     .card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
     .info-box{background:var(--el);border-radius:8px;padding:.65rem 1rem;font-size:.78rem;color:var(--eb);margin-bottom:.75rem;display:flex;align-items:flex-start;gap:.5rem}
     .add-game-box{background:#f9f9fb;border:1px solid #e8e8e8;border-radius:12px;padding:1rem 1.25rem;margin-top:.5rem}
+    .user-welcome{background:var(--el);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
+    .user-welcome-name{font-size:.9rem;font-weight:600;color:var(--eb)}
+    .user-welcome-sub{font-size:.75rem;color:#666;margin-top:2px}
+    .btn-logout{background:none;border:1px solid #ccc;border-radius:6px;padding:4px 10px;font-size:.75rem;color:#888;cursor:pointer}
+    .btn-logout:hover{background:#f0f0f0}
+    .deadline-warn{font-size:.72rem;color:#e65100;margin-top:.4rem;display:flex;align-items:center;gap:4px}
   </style>
 </head>
 <body>
 <div id="app">
   <div class="header">
-    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
       <circle cx="20" cy="20" r="20" fill="#2563a8"/>
       <text x="20" y="27" text-anchor="middle" font-size="18" font-weight="700" fill="#fff" font-family="sans-serif">E</text>
     </svg>
@@ -93,53 +99,57 @@
     </div>
   </div>
 
-  <div id="statusBar" class="status-bar loading">
-    <div class="dot dot-blue"></div>
-    <span>Conectando ao banco de dados...</span>
-  </div>
-
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('palpites')">Palpites</button>
-    <button class="tab" onclick="showTab('ranking')">Ranking</button>
-    <button class="tab" onclick="showTab('admin')"><i class="ti ti-lock" style="font-size:12px;margin-right:3px"></i>Admin</button>
-    <button class="tab" onclick="showTab('regras')">Regras</button>
-  </div>
-
-  <div id="sec-palpites" class="section active">
-    <p class="section-title">Selecione seu nome — após confirmar, o palpite fica travado</p>
-    <select id="userSelect"><option value="">— Selecione seu nome —</option></select>
-    <div id="gamesList"><div class="no-data">Conectando...</div></div>
-  </div>
-
-  <div id="sec-ranking" class="section">
-    <p class="section-title">Classificação geral — atualização em tempo real</p>
-    <div id="rankingContent"><div class="no-data">Carregando...</div></div>
-  </div>
-
-  <div id="sec-admin" class="section">
-    <div id="lockScreen">
-      <div class="lock-screen">
-        <div style="width:52px;height:52px;background:var(--el);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .9rem">
-          <i class="ti ti-lock" style="font-size:24px;color:var(--eb)"></i>
-        </div>
-        <p style="font-size:1rem;font-weight:700;color:#1a1a1a;margin-bottom:.3rem">Área administrativa</p>
-        <p style="font-size:.82rem;color:#888;margin-bottom:1.25rem">Acesso restrito ao organizador</p>
-        <input type="password" id="pwdInput" placeholder="Digite a senha" style="margin-bottom:.75rem;text-align:center" onkeydown="if(event.key==='Enter')checkPwd()"/>
-        <p class="lock-err" id="lockErr">Senha incorreta. Tente novamente.</p>
-        <button class="btn-primary full" onclick="checkPwd()">Entrar</button>
+  <div id="loginScreen">
+    <div class="login-screen">
+      <div style="width:52px;height:52px;background:var(--el);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .9rem">
+        <i class="ti ti-ball-football" style="font-size:26px;color:var(--eb)"></i>
       </div>
+      <p style="font-size:1.1rem;font-weight:700;color:#1a1a1a;margin-bottom:.3rem">Bem-vindo ao Bolão!</p>
+      <p style="font-size:.82rem;color:#888;margin-bottom:1.5rem">Digite sua senha para acessar seus palpites</p>
+      <input class="txt-input" type="password" id="loginPwd" placeholder="Digite sua senha" style="margin-bottom:.75rem;text-align:center" onkeydown="if(event.key==='Enter')doLogin()"/>
+      <p class="lock-err" id="loginErr">Senha incorreta. Tente novamente.</p>
+      <button class="btn-primary full" onclick="doLogin()">Entrar</button>
+      
     </div>
-    <div id="adminPanel" style="display:none">
+  </div>
+
+  <div id="mainApp" style="display:none">
+    <div id="statusBar" class="status-bar loading">
+      <div class="dot dot-blue"></div><span>Conectando...</span>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('palpites')">Palpites</button>
+      <button class="tab" onclick="showTab('ranking')">Ranking</button>
+      <button class="tab" id="adminTab" style="display:none" onclick="showTab('admin')"><i class="ti ti-lock" style="font-size:12px;margin-right:3px"></i>Admin</button>
+      <button class="tab" onclick="showTab('regras')">Regras</button>
+    </div>
+
+    <div id="sec-palpites" class="section active">
+      <div class="user-welcome">
+        <div>
+          <div class="user-welcome-name" id="welcomeName"></div>
+          <div class="user-welcome-sub">Palpites travam no dia do jogo!</div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()"><i class="ti ti-logout" style="font-size:12px;margin-right:3px"></i>Sair</button>
+      </div>
+      <div id="gamesList"><div class="no-data">Carregando jogos...</div></div>
+    </div>
+
+    <div id="sec-ranking" class="section">
+      <p class="section-title">Classificação geral — atualização em tempo real</p>
+      <div id="rankingContent"><div class="no-data">Carregando...</div></div>
+    </div>
+
+    <div id="sec-admin" class="section">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
         <p class="section-title" style="margin:0">Painel do organizador</p>
-        <button onclick="lockAdmin()" style="font-size:.75rem;color:#888;background:none;border:none;cursor:pointer"><i class="ti ti-lock"></i> Sair</button>
       </div>
       <div class="admin-tabs">
         <button class="admin-tab active" onclick="showAdminTab('resultados')">Resultados</button>
         <button class="admin-tab" onclick="showAdminTab('jogos')">Gerenciar Jogos</button>
       </div>
       <div id="at-resultados">
-        <div class="info-box"><i class="ti ti-info-circle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>Insira o placar real e clique em Salvar. Todos verão os pontos instantaneamente.</div>
+        <div class="info-box"><i class="ti ti-info-circle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>Ao salvar o resultado real, o jogo trava para todos. Jogos também travam automaticamente no dia do jogo.</div>
         <div id="adminGames"></div>
         <button class="btn-primary full" onclick="saveRealScores()" style="margin-top:.75rem"><i class="ti ti-device-floppy" style="margin-right:5px"></i>Salvar resultados</button>
       </div>
@@ -148,38 +158,43 @@
         <div class="add-game-box">
           <p style="font-size:.82rem;font-weight:600;color:#1a1a1a;margin-bottom:.75rem">Adicionar novo jogo</p>
           <div class="edit-row">
-            <div><label class="field-label">ID do jogo</label><input type="text" id="new-id" placeholder="ex: B07"/></div>
-            <div><label class="field-label">Data</label><input type="text" id="new-date" placeholder="ex: 28/Jun"/></div>
+            <div><label class="field-label">ID do jogo</label><input class="txt-input" id="new-id" placeholder="ex: B07"/></div>
+            <div><label class="field-label">Data (DD/MM/AAAA)</label><input class="txt-input" id="new-date" placeholder="ex: 28/06/2026"/></div>
           </div>
-          <div style="margin-bottom:.5rem"><label class="field-label">Adversário do Brasil</label><input type="text" id="new-adv" placeholder="ex: Argentina"/></div>
+          <div style="margin-bottom:.5rem"><label class="field-label">Adversário do Brasil</label><input class="txt-input" id="new-adv" placeholder="ex: Argentina"/></div>
           <button class="btn-primary" onclick="addGame()" style="margin-top:.25rem"><i class="ti ti-plus" style="margin-right:4px"></i>Adicionar</button>
         </div>
         <button class="btn-primary full" onclick="saveGames()" style="margin-top:.75rem"><i class="ti ti-device-floppy" style="margin-right:5px"></i>Salvar alterações nos jogos</button>
       </div>
     </div>
-  </div>
 
-  <div id="sec-regras" class="section">
-    <p class="section-title">Sistema de pontuação</p>
-    <div class="rules-card">
-      <div class="rule-row">
-        <div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-crosshair" style="color:var(--ea);margin-right:5px"></i>Placar exato</div><div class="rule-example">ex: chutou 2×1, deu 2×1</div></div>
-        <span class="rule-pts">5 pts</span>
+    <div id="sec-regras" class="section">
+      <p class="section-title">Sistema de pontuação</p>
+      <div class="rules-card">
+        <div class="rule-row">
+          <div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-crosshair" style="color:var(--ea);margin-right:5px"></i>Placar exato</div><div class="rule-example">ex: chutou 2×1, deu 2×1</div></div>
+          <span class="rule-pts">5 pts</span>
+        </div>
+        <div class="rule-row">
+          <div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-circle-check" style="color:var(--ea);margin-right:5px"></i>Acerta gols de um lado</div><div class="rule-example">ex: chutou 2×1, deu 2×0</div></div>
+          <span class="rule-pts">3 pts</span>
+        </div>
+        <div class="rule-row">
+          <div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-trophy" style="color:var(--ea);margin-right:5px"></i>Acerta só o vencedor</div><div class="rule-example">ex: chutou vitória do Brasil, Brasil ganhou</div></div>
+          <span class="rule-pts">1 pt</span>
+        </div>
+        <div class="rule-row">
+          <div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-x" style="color:#c62828;margin-right:5px"></i>Errou o vencedor</div><div class="rule-example">ex: chutou vitória do Brasil, adversário venceu</div></div>
+          <span class="rule-pts" style="color:#c62828">0 pts</span>
+        </div>
       </div>
-      <div class="rule-row">
-        <div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-circle-check" style="color:var(--ea);margin-right:5px"></i>Acerta gols de um lado</div><div class="rule-example">ex: chutou 2×1, deu 2×0 — acertou o gol do Brasil</div></div>
-        <span class="rule-pts">3 pts</span>
-      </div>
-      <div class="rule-row">
-        <div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-trophy" style="color:var(--ea);margin-right:5px"></i>Acerta só o vencedor</div><div class="rule-example">ex: chutou vitória do Brasil, Brasil ganhou</div></div>
-        <span class="rule-pts">1 pt</span>
-      </div>
-      <div class="rule-row">
-        <div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-x" style="color:#c62828;margin-right:5px"></i>Errou o vencedor</div><div class="rule-example">ex: chutou vitória do Brasil, adversário venceu</div></div>
-        <span class="rule-pts" style="color:#c62828">0 pts</span>
+      <div class="rules-card">
+        <div class="rule-row">
+          <div><div style="font-size:.85rem;font-weight:600;color:#1a1a1a"><i class="ti ti-lock" style="color:var(--ea);margin-right:5px"></i>Quando os palpites travam</div>
+          <div class="rule-example">• Ao confirmar manualmente<br>• No dia do jogo (automático)<br>• Quando o admin salvar o resultado</div></div>
+        </div>
       </div>
     </div>
-    <p style="font-size:.75rem;color:#aaa;margin-top:.5rem">Após confirmar o palpite de um jogo, ele fica travado e não pode ser alterado.</p>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -188,26 +203,57 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
 const ADMIN_PWD="Esfera2025@";
+
+// Datas no formato DD/MM/AAAA para cálculo automático de travamento
 const users=[
-  {id:"F01",name:"Ingrid Paiva"},{id:"F02",name:"Marcio Peres"},{id:"F03",name:"Roberto Souza"},
-  {id:"F04",name:"Lais Eislfeldt"},{id:"F05",name:"Alexandre Bacelar"},{id:"F06",name:"Ana Camargo"},
-  {id:"F07",name:"Natalia Suemi"},{id:"F08",name:"Ana Flavia"},{id:"F09",name:"Barbara Câmara"},
-  {id:"F10",name:"Breno Tenorio"},{id:"F11",name:"Bruna Martins"},{id:"F12",name:"Camila Camargo"},
-  {id:"F13",name:"Camilla Reis"},{id:"F14",name:"Daniela Matos"},{id:"F15",name:"Evelyn Galvão"},
-  {id:"F16",name:"Fernanda Real"},{id:"F17",name:"Fernando Meneguin"},{id:"F18",name:"Gabriel Piante"},
-  {id:"F19",name:"Gabriela Gonçalves"},{id:"F20",name:"Igor Marcelino"},{id:"F21",name:"Isabella Santos"},
-  {id:"F22",name:"João Camargo"},{id:"F23",name:"João Prasser"},{id:"F24",name:"Leticia Abade"},
-  {id:"F25",name:"Luis Pereira"},{id:"F26",name:"Ligia Colares"},{id:"F27",name:"Marcella Alves"},
-  {id:"F28",name:"Maria Wendt"},{id:"F29",name:"Maria Gonçalves"},{id:"F30",name:"Matheus Paiva"},
-  {id:"F31",name:"Patricia Souza"},{id:"F32",name:"Samy Back"},{id:"F33",name:"Talita Tavares"},
-  {id:"F34",name:"Thais Sylos"},{id:"F35",name:"Victoria Carvalho"},{id:"F36",name:"Victor Cinzento"},
-  {id:"F37",name:"Karen Almeida"},{id:"F38",name:"Viviane Nascimento"},{id:"F39",name:"Michele Brito"},
+  {id:"F01",name:"Ingrid Paiva",pwd:"Ingrid26EB"},
+  {id:"F02",name:"Marcio Peres",pwd:"Marcio26EB"},
+  {id:"F03",name:"Roberto Souza",pwd:"Roberto26EB"},
+  {id:"F04",name:"Lais Eislfeldt",pwd:"Lais26EB"},
+  {id:"F05",name:"Alexandre Bacelar",pwd:"Alexandre26EB"},
+  {id:"F06",name:"Ana Camargo",pwd:"Ana26EB"},
+  {id:"F07",name:"Natalia Suemi",pwd:"Natalia26EB"},
+  {id:"F08",name:"Ana Flavia",pwd:"AnaFlavia26EB"},
+  {id:"F09",name:"Barbara Câmara",pwd:"Barbara26EB"},
+  {id:"F10",name:"Breno Tenorio",pwd:"Breno26EB"},
+  {id:"F11",name:"Bruna Martins",pwd:"Bruna26EB"},
+  {id:"F12",name:"Camila Camargo",pwd:"Camila26EB"},
+  {id:"F13",name:"Camilla Reis",pwd:"Camilla26EB"},
+  {id:"F14",name:"Daniela Matos",pwd:"Daniela26EB"},
+  {id:"F15",name:"Evelyn Galvão",pwd:"Evelyn26EB"},
+  {id:"F16",name:"Fernanda Real",pwd:"Fernanda26EB"},
+  {id:"F17",name:"Fernando Meneguin",pwd:"Fernando26EB"},
+  {id:"F18",name:"Gabriel Piante",pwd:"Gabriel26EB"},
+  {id:"F19",name:"Gabriela Gonçalves",pwd:"Gabriela26EB"},
+  {id:"F20",name:"Igor Marcelino",pwd:"Igor26EB"},
+  {id:"F21",name:"Isabella Santos",pwd:"Isabella26EB"},
+  {id:"F22",name:"João Camargo",pwd:"Joao26EB"},
+  {id:"F23",name:"João Prasser",pwd:"JoaoPrasser26EB"},
+  {id:"F24",name:"Leticia Abade",pwd:"Leticia26EB"},
+  {id:"F25",name:"Luis Pereira",pwd:"Luis26EB"},
+  {id:"F26",name:"Ligia Colares",pwd:"Ligia26EB"},
+  {id:"F27",name:"Marcella Alves",pwd:"Marcella26EB"},
+  {id:"F28",name:"Maria Wendt",pwd:"MariaWendt26EB"},
+  {id:"F29",name:"Maria Gonçalves",pwd:"MariaGoncalves26EB"},
+  {id:"F30",name:"Matheus Paiva",pwd:"Matheus26EB"},
+  {id:"F31",name:"Patricia Souza",pwd:"Patricia26EB"},
+  {id:"F32",name:"Samy Back",pwd:"Samy26EB"},
+  {id:"F33",name:"Talita Tavares",pwd:"Talita26EB"},
+  {id:"F34",name:"Thais Sylos",pwd:"Thais26EB"},
+  {id:"F35",name:"Victoria Carvalho",pwd:"Victoria26EB"},
+  {id:"F36",name:"Victor Cinzento",pwd:"Victor26EB"},
+  {id:"F37",name:"Karen Almeida",pwd:"Karen26EB"},
+  {id:"F38",name:"Viviane Nascimento",pwd:"Viviane26EB"},
+  {id:"F39",name:"Michele Brito",pwd:"Michele26EB"},
 ];
+
 const defaultGames=[
-  {id:"B01",adv:"Marrocos",date:"13/Jun"},
-  {id:"B02",adv:"Haiti",date:"19/Jun"},
-  {id:"B03",adv:"Escócia",date:"24/Jun"},
-  {id:"B04",adv:"",date:""},{id:"B05",adv:"",date:""},{id:"B06",adv:"",date:""},
+  {id:"B01",adv:"Marrocos",date:"13/Jun",fullDate:"13/06/2026"},
+  {id:"B02",adv:"Haiti",date:"19/Jun",fullDate:"19/06/2026"},
+  {id:"B03",adv:"Escócia",date:"24/Jun",fullDate:"24/06/2026"},
+  {id:"B04",adv:"",date:"",fullDate:""},
+  {id:"B05",adv:"",date:"",fullDate:""},
+  {id:"B06",adv:"",date:"",fullDate:""},
 ];
 
 firebase.initializeApp({
@@ -220,9 +266,37 @@ firebase.initializeApp({
   appId:"1:707967155138:web:466f6a991df1e4779ef45b"
 });
 const db=firebase.database();
-
 let state={palpites:{},locked:{},realScores:{},games:null};
-let currentUid='';
+let currentUser=null;
+
+// Verifica se o jogo está travado por data (no dia do jogo ou depois)
+function isGameDateLocked(g){
+  const fd=g.fullDate||'';
+  if(!fd)return false;
+  const parts=fd.split('/');
+  if(parts.length!==3)return false;
+  const gameDate=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]),0,0,0,0);
+  const today=new Date();
+  today.setHours(0,0,0,0);
+  return today>=gameDate;
+}
+
+function isGameClosed(g){
+  return !!(state.realScores&&state.realScores[g.id]&&state.realScores[g.id].brasil!==undefined);
+}
+
+function isLocked(uid,gid){return !!(state.locked[uid]||{})[gid];}
+
+function isInputDisabled(uid,g){
+  return isLocked(uid,g.id)||isGameDateLocked(g)||isGameClosed(g);
+}
+
+function getLockReason(uid,g){
+  if(isGameClosed(g))return 'encerrado';
+  if(isGameDateLocked(g))return 'dia do jogo';
+  if(isLocked(uid,g.id))return 'travado';
+  return null;
+}
 
 function setStatus(type,msg){
   const el=document.getElementById('statusBar');
@@ -242,13 +316,60 @@ function calcPts(pb,pa,rb,ra){
   if(Math.sign(pb-pa)===Math.sign(rb-ra))return 1;
   return 0;
 }
+
+function doLogin(){
+  const pwd=document.getElementById('loginPwd').value.trim();
+  if(pwd===ADMIN_PWD){currentUser={id:'ADMIN',name:'Administrador',isAdmin:true};startApp();return;}
+  const user=users.find(u=>u.pwd===pwd);
+  if(user){currentUser={...user,isAdmin:false};startApp();}
+  else{
+    document.getElementById('loginErr').style.display='block';
+    document.getElementById('loginPwd').value='';
+    document.getElementById('loginPwd').focus();
+  }
+}
+
+function startApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  document.getElementById('welcomeName').textContent='Olá, '+currentUser.name.split(' ')[0]+'!';
+  if(currentUser.isAdmin){document.getElementById('adminTab').style.display='block';showTab('admin');}
+  else renderGames();
+  db.ref('.info/connected').on('value',snap=>{
+    setStatus(snap.val()?'ok':'err',snap.val()?'Conectado — tempo real':'Sem conexão');
+  });
+  db.ref('/').on('value',snap=>{
+    const data=snap.val()||{};
+    state.palpites=data.palpites||{};
+    state.locked=data.locked||{};
+    state.realScores=data.realScores||{};
+    state.games=data.games&&data.games.length?data.games:null;
+    if(!currentUser.isAdmin)renderGames();
+    if(document.querySelector('#sec-ranking.active'))renderRanking();
+    if(document.querySelector('#at-resultados:not([style*="none"])'))renderAdmin();
+  });
+  db.ref('games').once('value',snap=>{if(!snap.val())db.ref('games').set(defaultGames);});
+}
+
+function doLogout(){
+  currentUser=null;
+  document.getElementById('mainApp').style.display='none';
+  document.getElementById('loginScreen').style.display='block';
+  document.getElementById('loginPwd').value='';
+  document.getElementById('loginErr').style.display='none';
+}
+
 function showTab(t){
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['palpites','ranking','admin','regras'][i]===t));
+  document.querySelectorAll('.tab').forEach(el=>{
+    el.classList.remove('active');
+    if(el.getAttribute('onclick')&&el.getAttribute('onclick').includes("'"+t+"'"))el.classList.add('active');
+  });
   document.querySelectorAll('.section').forEach(el=>el.classList.remove('active'));
   document.getElementById('sec-'+t).classList.add('active');
   if(t==='ranking')renderRanking();
-  if(t==='admin'){document.getElementById('pwdInput').value='';document.getElementById('lockErr').style.display='none';}
+  if(t==='admin')showAdminTab('resultados');
 }
+
 function showAdminTab(t){
   document.querySelectorAll('.admin-tab').forEach((el,i)=>el.classList.toggle('active',['resultados','jogos'][i]===t));
   document.getElementById('at-resultados').style.display=t==='resultados'?'block':'none';
@@ -256,35 +377,15 @@ function showAdminTab(t){
   if(t==='resultados')renderAdmin();
   if(t==='jogos')renderEditGames();
 }
-function checkPwd(){
-  if(document.getElementById('pwdInput').value===ADMIN_PWD){
-    document.getElementById('lockScreen').style.display='none';
-    document.getElementById('adminPanel').style.display='block';
-    renderAdmin();
-  }else{
-    document.getElementById('lockErr').style.display='block';
-    document.getElementById('pwdInput').value='';
-    document.getElementById('pwdInput').focus();
-  }
-}
-function lockAdmin(){
-  document.getElementById('lockScreen').style.display='block';
-  document.getElementById('adminPanel').style.display='none';
-  showTab('palpites');
-}
-
-const sel=document.getElementById('userSelect');
-users.forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.name;sel.appendChild(o);});
-sel.onchange=()=>{currentUid=sel.value;renderGames(currentUid);};
 
 function getPalpite(uid,gid){return(state.palpites[uid]||{})[gid]||{brasil:'',adv:''};}
-function isLocked(uid,gid){return !!(state.locked[uid]||{})[gid];}
 
-function confirmPalpite(uid,gid){
-  const bEl=document.getElementById(`inp_${uid}_${gid}_b`);
-  const aEl=document.getElementById(`inp_${uid}_${gid}_a`);
+function confirmPalpite(gid){
+  const uid=currentUser.id;
+  const bEl=document.getElementById(`inp_${gid}_b`);
+  const aEl=document.getElementById(`inp_${gid}_a`);
   if(!bEl||!aEl||bEl.value===''||aEl.value===''){showToast('Preencha os dois campos antes de confirmar.');return;}
-  const btn=document.getElementById(`btn_${uid}_${gid}`);
+  const btn=document.getElementById(`btn_${gid}`);
   if(btn){btn.disabled=true;btn.innerHTML='<i class="ti ti-loader"></i> Salvando...';}
   Promise.all([
     db.ref(`palpites/${uid}/${gid}`).set({brasil:parseInt(bEl.value),adv:parseInt(aEl.value)}),
@@ -293,39 +394,57 @@ function confirmPalpite(uid,gid){
     .catch(e=>{showToast('Erro: '+e.message);if(btn){btn.disabled=false;btn.innerHTML='<i class="ti ti-check"></i> Confirmar palpite';}});
 }
 
-function renderGames(uid){
+function formatDeadline(g){
+  if(!g.fullDate)return '';
+  const parts=g.fullDate.split('/');
+  if(parts.length!==3)return '';
+  const gameDate=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]),0,0,0,0);
+  const today=new Date();today.setHours(0,0,0,0);
+  const diff=Math.ceil((gameDate-today)/(1000*60*60*24));
+  if(diff===1)return '<span class="deadline-warn"><i class="ti ti-alert-triangle" style="font-size:12px"></i>Trava amanhã!</span>';
+  if(diff===0)return '<span class="deadline-warn"><i class="ti ti-alert-triangle" style="font-size:12px"></i>Trava hoje!</span>';
+  return '';
+}
+
+function renderGames(){
   const el=document.getElementById('gamesList');
-  if(!uid){el.innerHTML='<div class="no-data">Selecione seu nome acima para ver os jogos.</div>';return;}
+  if(!currentUser||currentUser.isAdmin)return;
+  const uid=currentUser.id;
   const games=state.games&&state.games.length?state.games:defaultGames;
   let html='';
   games.forEach(g=>{
     const p=getPalpite(uid,g.id);
-    const locked=isLocked(uid,g.id);
+    const disabled=isInputDisabled(uid,g);
+    const reason=getLockReason(uid,g);
     const real=state.realScores[g.id];
     const rb=real!=null?real.brasil:null,ra=real!=null?real.adv:null;
     let ptsHtml='';
-    if(locked&&p.brasil!==''&&p.adv!==''){
+    if(disabled&&p.brasil!==''&&p.adv!==''){
       const pts=calcPts(parseInt(p.brasil),parseInt(p.adv),rb,ra);
       if(pts!==null)ptsHtml=`<span class="result-badge">${pts} pt${pts!==1?'s':''}</span>`;
     }
-    const lockedBadge=locked?`<span class="badge-locked"><i class="ti ti-lock" style="font-size:10px"></i> travado</span>`:'';
+    let badge='';
+    if(reason==='encerrado')badge=`<span class="badge-encerrado"><i class="ti ti-lock" style="font-size:10px"></i> encerrado</span>`;
+    else if(reason==='dia do jogo')badge=`<span class="badge-encerrado"><i class="ti ti-lock" style="font-size:10px"></i> dia do jogo</span>`;
+    else if(reason==='travado')badge=`<span class="badge-locked"><i class="ti ti-lock" style="font-size:10px"></i> travado</span>`;
     const realHtml=rb!==null?`<div class="real-score-area"><span class="real-label">Resultado real:</span><span style="font-size:.88rem;font-weight:700;color:var(--eb);margin-left:8px">${rb} × ${ra}</span></div>`:'';
-    const confirmBtn=!locked?`<button class="btn-confirm" id="btn_${uid}_${g.id}" onclick="confirmPalpite('${uid}','${g.id}')"><i class="ti ti-check" style="margin-right:4px"></i>Confirmar palpite</button>`:'';
-    html+=`<div class="game-card${locked?' locked':''}">
+    const deadline=!disabled?formatDeadline(g):'';
+    const confirmBtn=!disabled?`<button class="btn-confirm" id="btn_${g.id}" onclick="confirmPalpite('${g.id}')"><i class="ti ti-check" style="margin-right:4px"></i>Confirmar palpite</button>`:'';
+    html+=`<div class="game-card${disabled?' locked':''}">
       <div class="game-header">
-        <div style="display:flex;align-items:center;gap:6px"><span class="game-id">${g.id}</span>${lockedBadge}</div>
+        <div style="display:flex;align-items:center;gap:6px"><span class="game-id">${g.id}</span>${badge}</div>
         <div style="display:flex;align-items:center;gap:6px">${ptsHtml}<span class="game-date">${g.date||'—'}</span></div>
       </div>
       <div class="game-teams">
         <span class="team-name">🇧🇷 Brasil</span>
         <div class="score-area">
-          <input class="score-input" id="inp_${uid}_${g.id}_b" type="number" min="0" max="20" value="${p.brasil!==''?p.brasil:''}" placeholder="—" ${locked?'disabled':''}/>
+          <input class="score-input" id="inp_${g.id}_b" type="number" min="0" max="20" value="${p.brasil!==''?p.brasil:''}" placeholder="—" ${disabled?'disabled':''}/>
           <span class="score-sep">×</span>
-          <input class="score-input" id="inp_${uid}_${g.id}_a" type="number" min="0" max="20" value="${p.adv!==''?p.adv:''}" placeholder="—" ${locked?'disabled':''}/>
+          <input class="score-input" id="inp_${g.id}_a" type="number" min="0" max="20" value="${p.adv!==''?p.adv:''}" placeholder="—" ${disabled?'disabled':''}/>
         </div>
         <span class="team-name right">${g.adv||'Adversário'}</span>
       </div>
-      ${realHtml}${confirmBtn}
+      ${realHtml}${deadline}${confirmBtn}
     </div>`;
   });
   el.innerHTML=html;
@@ -335,7 +454,7 @@ function getUserTotalPoints(uid){
   let total=0;
   const games=state.games&&state.games.length?state.games:defaultGames;
   games.forEach(g=>{
-    if(!isLocked(uid,g.id))return;
+    if(!isLocked(uid,g.id)&&!isGameDateLocked(g)&&!isGameClosed(g))return;
     const p=getPalpite(uid,g.id);
     const real=state.realScores[g.id];
     if(!real||p.brasil===''||p.adv==='')return;
@@ -348,7 +467,7 @@ function getUserTotalPoints(uid){
 function renderRanking(){
   const el=document.getElementById('rankingContent');
   const sorted=[...users].map(u=>({...u,pts:getUserTotalPoints(u.id)})).sort((a,b)=>b.pts-a.pts);
-  if(sorted.every(u=>u.pts===0)){el.innerHTML='<div class="no-data">Nenhum palpite confirmado ainda.</div>';return;}
+  if(sorted.every(u=>u.pts===0)){el.innerHTML='<div class="no-data">Nenhum resultado disponível ainda.</div>';return;}
   const medals=['🥇','🥈','🥉'];
   let html=`<table class="ranking-table"><thead><tr><th>#</th><th>Participante</th><th style="text-align:right">Pontos</th></tr></thead><tbody>`;
   sorted.forEach((u,i)=>{html+=`<tr><td>${medals[i]||`${i+1}º`}</td><td>${u.name}</td><td style="text-align:right"><span class="points-badge">${u.pts}</span></td></tr>`;});
@@ -361,8 +480,15 @@ function renderAdmin(){
   let html='';
   games.forEach(g=>{
     const r=(state.realScores&&state.realScores[g.id])||{brasil:'',adv:''};
+    const dateLocked=isGameDateLocked(g);
     html+=`<div class="game-card">
-      <div class="game-header"><span class="game-id">${g.id}</span><span class="game-date">${g.date||'—'}</span></div>
+      <div class="game-header">
+        <span class="game-id">${g.id}</span>
+        <div style="display:flex;align-items:center;gap:6px">
+          ${dateLocked?'<span class="badge-encerrado"><i class="ti ti-lock" style="font-size:10px"></i> dia do jogo</span>':''}
+          <span class="game-date">${g.date||'—'}</span>
+        </div>
+      </div>
       <div class="game-teams">
         <span class="team-name">🇧🇷 Brasil</span>
         <div class="score-area">
@@ -397,9 +523,10 @@ function renderEditGames(){
     html+=`<div class="game-edit-card">
       <div class="card-top"><span class="game-id">${g.id}</span><button class="delete-btn" onclick="deleteGame(${i})"><i class="ti ti-trash"></i> Remover</button></div>
       <div class="edit-row">
-        <div><label class="field-label">Adversário</label><input type="text" value="${g.adv||''}" placeholder="ex: Argentina" onchange="state.games[${i}].adv=this.value"/></div>
-        <div><label class="field-label">Data</label><input type="text" value="${g.date||''}" placeholder="ex: 28/Jun" onchange="state.games[${i}].date=this.value"/></div>
+        <div><label class="field-label">Adversário</label><input class="txt-input" value="${g.adv||''}" placeholder="ex: Argentina" onchange="state.games[${i}].adv=this.value"/></div>
+        <div><label class="field-label">Data exibição</label><input class="txt-input" value="${g.date||''}" placeholder="ex: 28/Jun" onchange="state.games[${i}].date=this.value"/></div>
       </div>
+      <div><label class="field-label">Data completa (DD/MM/AAAA) — para travamento automático</label><input class="txt-input" value="${g.fullDate||''}" placeholder="ex: 28/06/2026" onchange="state.games[${i}].fullDate=this.value"/></div>
     </div>`;
   });
   el.innerHTML=html;
@@ -414,11 +541,18 @@ function deleteGame(i){
 function addGame(){
   const id=document.getElementById('new-id').value.trim();
   const adv=document.getElementById('new-adv').value.trim();
-  const date=document.getElementById('new-date').value.trim();
+  const fullDate=document.getElementById('new-date').value.trim();
   if(!id){showToast('Informe o ID do jogo.');return;}
-  const games=state.games&&state.games.length?state.games:[];
+  const games=state.games&&state.games.length?[...state.games]:[];
   if(games.find(g=>g.id===id)){showToast('Já existe um jogo com esse ID.');return;}
-  games.push({id,adv,date});
+  // Formata data de exibição a partir da data completa
+  let dateDisplay='';
+  if(fullDate){
+    const p=fullDate.split('/');
+    const months=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    if(p.length===3)dateDisplay=`${p[0]}/${months[parseInt(p[1])-1]}`;
+  }
+  games.push({id,adv,date:dateDisplay,fullDate});
   db.ref('games').set(games).then(()=>{
     document.getElementById('new-id').value='';
     document.getElementById('new-adv').value='';
@@ -429,28 +563,11 @@ function addGame(){
 
 function saveGames(){
   db.ref('games').set(state.games)
-    .then(()=>{showToast('Jogos salvos!');if(currentUid)renderGames(currentUid);})
+    .then(()=>{showToast('Jogos salvos!');renderGames();})
     .catch(e=>showToast('Erro: '+e.message));
 }
 
-// Escuta mudanças em tempo real
-db.ref('.info/connected').on('value',snap=>{
-  setStatus(snap.val()?'ok':'err', snap.val()?'Conectado — palpites sincronizados em tempo real':'Sem conexão — verifique sua internet');
-});
-
-db.ref('/').on('value',snap=>{
-  const data=snap.val()||{};
-  state.palpites=data.palpites||{};
-  state.locked=data.locked||{};
-  state.realScores=data.realScores||{};
-  state.games=data.games&&data.games.length?data.games:null;
-  if(currentUid)renderGames(currentUid);
-  if(document.querySelector('#sec-ranking.active'))renderRanking();
-  if(document.querySelector('#at-resultados:not([style*="none"])'))renderAdmin();
-});
-
-// Inicializa jogos padrão se vazio
-db.ref('games').once('value',snap=>{if(!snap.val())db.ref('games').set(defaultGames);});
+document.getElementById('loginPwd').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 </script>
 </body>
 </html>
