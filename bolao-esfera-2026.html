@@ -96,6 +96,31 @@
     .modal-btn-cancel{flex:1;padding:.65rem;border:1px solid #d0d0d0;border-radius:8px;background:#fff;color:#555;cursor:pointer;font-size:.85rem;font-family:inherit;font-weight:500}
     .modal-btn-ok{flex:1;padding:.65rem;border:none;border-radius:8px;background:var(--eb);color:#fff;cursor:pointer;font-size:.85rem;font-family:inherit;font-weight:600}
     .modal-btn-ok:hover{background:var(--em)}
+  /* HISTÓRICO */
+  .hist-card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .hist-game-title{font-size:.82rem;font-weight:600;color:#1a1a1a;margin-bottom:.5rem;display:flex;justify-content:space-between;align-items:center}
+  .hist-row{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:#555}
+  .hist-pts-5{background:#e8f5e9;color:#1b5e20;padding:3px 10px;border-radius:20px;font-weight:700;font-size:.8rem}
+  .hist-pts-3{background:#e3f2fd;color:#0d47a1;padding:3px 10px;border-radius:20px;font-weight:700;font-size:.8rem}
+  .hist-pts-1{background:#fff8e1;color:#e65100;padding:3px 10px;border-radius:20px;font-weight:700;font-size:.8rem}
+  .hist-pts-0{background:#ffebee;color:#b71c1c;padding:3px 10px;border-radius:20px;font-weight:700;font-size:.8rem}
+  .hist-pending{background:#f5f5f5;color:#888;padding:3px 10px;border-radius:20px;font-size:.8rem}
+  .hist-total{background:var(--el);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
+  .hist-total-label{font-size:.85rem;color:var(--eb);font-weight:600}
+  .hist-total-pts{font-size:1.3rem;font-weight:700;color:var(--eb)}
+
+  /* RANKING MELHORADO */
+  .rank-change-up{font-size:.75rem;color:#2e7d32;font-weight:600;margin-left:4px}
+  .rank-change-down{font-size:.75rem;color:#c62828;font-weight:600;margin-left:4px}
+  .rank-change-same{font-size:.75rem;color:#aaa;margin-left:4px}
+  .rank-detail-row{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+  .rank-game-chip{font-size:.68rem;padding:2px 6px;border-radius:12px;font-weight:600}
+  .chip-5{background:#e8f5e9;color:#1b5e20}
+  .chip-3{background:#e3f2fd;color:#0d47a1}
+  .chip-1{background:#fff8e1;color:#e65100}
+  .chip-0{background:#ffebee;color:#b71c1c}
+  .chip-n{background:#f5f5f5;color:#aaa}
+
   /* PÓDIO MODAL */
   .podium-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:flex;align-items:center;justify-content:center;padding:1rem}
   .podium-box{background:#fff;border-radius:20px;padding:2rem 1.5rem;max-width:340px;width:100%;text-align:center;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25)}
@@ -166,6 +191,7 @@
     <div class="tabs">
       <button class="tab active" onclick="showTab('palpites')">Palpites</button>
       <button class="tab" onclick="showTab('ranking')">Ranking</button>
+      <button class="tab" onclick="showTab('historico')">Histórico</button>
       <button class="tab" id="adminTab" style="display:none" onclick="showTab('admin')"><i class="ti ti-lock" style="font-size:12px;margin-right:3px"></i>Admin</button>
       <button class="tab" onclick="showTab('regras')">Regras</button>
     </div>
@@ -184,6 +210,11 @@
     <div id="sec-ranking" class="section">
       <p class="section-title">Classificação geral — atualização em tempo real</p>
       <div id="rankingContent"><div class="no-data">Carregando...</div></div>
+    </div>
+
+    <div id="sec-historico" class="section">
+      <p class="section-title">Seus palpites e pontuação por jogo</p>
+      <div id="historicoContent"><div class="no-data">Carregando...</div></div>
     </div>
 
     <div id="sec-admin" class="section">
@@ -379,6 +410,7 @@ function startApp(){
     state.games=data.games&&data.games.length?data.games:null;
     renderGames();
     if(document.querySelector('#sec-ranking.active'))renderRanking();
+    if(document.querySelector('#sec-historico.active'))renderHistorico();
     if(document.querySelector('#at-resultados:not([style*="none"])'))renderAdmin();
     checkPodium();
   });
@@ -425,6 +457,7 @@ function showTab(t){
   document.querySelectorAll('.section').forEach(function(el){el.classList.remove('active');});
   document.getElementById('sec-'+t).classList.add('active');
   if(t==='ranking')renderRanking();
+  if(t==='historico')renderHistorico();
   if(t==='admin')showAdminTab('resultados');
 }
 
@@ -567,14 +600,7 @@ function getUserTotalPoints(uid){
   return total;
 }
 
-function renderRanking(){
-  var el=document.getElementById('rankingContent');
-  var sorted=users.map(function(u){return Object.assign({},u,{pts:getUserTotalPoints(u.id)});}).sort(function(a,b){return b.pts-a.pts;});
-  var medals=['🥇','🥈','🥉'];
-  var html='<table class="ranking-table"><thead><tr><th>#</th><th>Participante</th><th style="text-align:right">Pontos</th></tr></thead><tbody>';
-  sorted.forEach(function(u,i){html+='<tr><td>'+(medals[i]||((i+1)+'º'))+'</td><td>'+u.name+'</td><td style="text-align:right"><span class="points-badge">'+u.pts+'</span></td></tr>';});
-  html+='</tbody></table>';el.innerHTML=html;
-}
+
 
 function renderAdmin(){
   var el=document.getElementById('adminGames');
@@ -692,6 +718,95 @@ function saveGames(){
 
 document.getElementById('loginPwd').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 
+// HISTÓRICO
+function renderHistorico(){
+  var el=document.getElementById('historicoContent');
+  if(!currentUser||currentUser.isAdmin){el.innerHTML='<div class="no-data">Faça login para ver seu histórico.</div>';return;}
+  var uid=currentUser.id;
+  var games=state.games&&state.games.length?state.games:defaultGames;
+  var total=0;
+  var html='';
+  games.forEach(function(g){
+    var p=getPalpite(uid,g.id);
+    var real=state.realScores[g.id];
+    var hasPalpite=p.brasil!==''&&p.adv!=='';
+    var hasResult=real&&real.brasil!==undefined;
+    var pts=null;
+    if(hasPalpite&&hasResult)pts=calcPts(parseInt(p.brasil),parseInt(p.adv),real.brasil,real.adv);
+    if(pts!==null)total+=pts;
+    var ptsHtml='<span class="hist-pending">Aguardando</span>';
+    if(!hasPalpite)ptsHtml='<span class="hist-pending">Sem palpite</span>';
+    else if(pts===5)ptsHtml='<span class="hist-pts-5">+5 pts 🎯</span>';
+    else if(pts===3)ptsHtml='<span class="hist-pts-3">+3 pts ⚽</span>';
+    else if(pts===1)ptsHtml='<span class="hist-pts-1">+1 pt 🤝</span>';
+    else if(pts===0)ptsHtml='<span class="hist-pts-0">0 pts ❌</span>';
+    var palpiteStr=hasPalpite?'Seu palpite: Brasil '+p.brasil+' × '+p.adv+' '+(g.adv||''):'Sem palpite registrado';
+    var resultStr=hasResult?'Resultado real: Brasil '+real.brasil+' × '+real.adv+' '+(g.adv||''):'Resultado ainda não disponível';
+    html+='<div class="hist-card">'+
+      '<div class="hist-game-title"><span>'+(g.adv?'🇧🇷 Brasil × '+g.adv:'Jogo '+g.id)+' <span style="font-size:.72rem;color:#aaa;font-weight:400">'+(g.date||'')+'</span></span>'+ptsHtml+'</div>'+
+      '<div class="hist-row" style="margin-bottom:3px"><span>'+palpiteStr+'</span></div>'+
+      '<div class="hist-row" style="color:#888"><span>'+resultStr+'</span></div>'+
+    '</div>';
+  });
+  var totalHtml='<div class="hist-total"><span class="hist-total-label">Total de pontos</span><span class="hist-total-pts">'+total+' pt'+(total!==1?'s':'')+'</span></div>';
+  el.innerHTML=totalHtml+html;
+}
+
+// RANKING com pontos por jogo e seta de posição
+var lastRankingPositions={};
+
+function renderRanking(){
+  var el=document.getElementById('rankingContent');
+  var games=state.games&&state.games.length?state.games:defaultGames;
+  var sorted=users.map(function(u){
+    var gamePts={};
+    games.forEach(function(g){
+      var p=getPalpite(u.id,g.id);
+      var real=state.realScores[g.id];
+      if(p.brasil!==''&&p.adv!==''&&real&&real.brasil!==undefined){
+        gamePts[g.id]=calcPts(parseInt(p.brasil),parseInt(p.adv),real.brasil,real.adv);
+      } else {
+        gamePts[g.id]=null;
+      }
+    });
+    var total=Object.values(gamePts).reduce(function(s,v){return s+(v||0);},0);
+    return {id:u.id,name:u.name,pts:total,gamePts:gamePts};
+  }).sort(function(a,b){return b.pts-a.pts;});
+
+  var medals=['🥇','🥈','🥉'];
+  var html='<table class="ranking-table"><thead><tr><th>#</th><th>Participante</th><th style="text-align:right">Pontos</th></tr></thead><tbody>';
+  sorted.forEach(function(u,i){
+    var pos=i+1;
+    var lastPos=lastRankingPositions[u.id]||pos;
+    var changeHtml='';
+    if(lastPos>pos)changeHtml='<span class="rank-change-up">▲'+(lastPos-pos)+'</span>';
+    else if(lastPos<pos)changeHtml='<span class="rank-change-down">▼'+(pos-lastPos)+'</span>';
+    else changeHtml='<span class="rank-change-same">—</span>';
+    lastRankingPositions[u.id]=pos;
+
+    // chips por jogo
+    var chips='<div class="rank-detail-row">';
+    games.forEach(function(g){
+      var pts=u.gamePts[g.id];
+      var label=g.adv?g.adv.substring(0,3):g.id;
+      if(pts===5)chips+='<span class="rank-game-chip chip-5">'+label+' +5</span>';
+      else if(pts===3)chips+='<span class="rank-game-chip chip-3">'+label+' +3</span>';
+      else if(pts===1)chips+='<span class="rank-game-chip chip-1">'+label+' +1</span>';
+      else if(pts===0)chips+='<span class="rank-game-chip chip-0">'+label+' 0</span>';
+    });
+    chips+='</div>';
+
+    html+='<tr>'+
+      '<td>'+(medals[i]||pos+'º')+'</td>'+
+      '<td><div style="font-size:.85rem;font-weight:500">'+u.name+changeHtml+'</div>'+chips+'</td>'+
+      '<td style="text-align:right;vertical-align:top;padding-top:.8rem"><span class="points-badge">'+u.pts+'</span></td>'+
+    '</tr>';
+  });
+  html+='</tbody></table>';
+  el.innerHTML=html;
+  checkPodium();
+}
+
 // PÓDIO
 var podiumShown=false;
 
@@ -748,4 +863,5 @@ document.getElementById('modalAdminOverlay').addEventListener('click',function(e
 </script>
 </body>
 </html>
+
 
