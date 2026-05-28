@@ -221,7 +221,7 @@ const users=[
   {id:"F01",name:"Ingrid Paiva",pwd:"Ingrid26EB"},
   {id:"F02",name:"Marcio Peres",pwd:"Marcio26EB"},
   {id:"F03",name:"Roberto Souza",pwd:"Roberto26EB"},
-  {id:"F04",name:"Lais Eislfeldt",pwd:"Lais26EB"},
+  {id:"F04",name:"Laiz Eislfeldt",pwd:"Laiz26EB"},
   {id:"F05",name:"Alexandre Bacelar",pwd:"Alexandre26EB"},
   {id:"F06",name:"Ana Camargo",pwd:"Ana26EB"},
   {id:"F07",name:"Natalia Suemi",pwd:"Natalia26EB"},
@@ -314,6 +314,7 @@ function startApp(){
   document.getElementById('mainApp').style.display='block';
   document.getElementById('welcomeName').textContent='Olá, '+currentUser.name.split(' ')[0]+'!';
   if(currentUser.isAdmin)document.getElementById('adminTab').style.display='block';
+  showTab('palpites');
   db.ref('.info/connected').on('value',function(snap){
     setStatus(snap.val()?'ok':'err',snap.val()?'Conectado — tempo real':'Sem conexão');
   });
@@ -328,8 +329,7 @@ function startApp(){
     if(document.querySelector('#at-resultados:not([style*="none"])'))renderAdmin();
   });
   db.ref('games').once('value',function(snap){if(!snap.val())db.ref('games').set(defaultGames);});
-  if(currentUser.isAdmin)showTab('admin');
-  else renderGames();
+  renderGames();
 }
 
 function doLogout(){
