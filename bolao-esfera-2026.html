@@ -323,7 +323,7 @@ function startApp(){
     state.locked=data.locked||{};
     state.realScores=data.realScores||{};
     state.games=data.games&&data.games.length?data.games:null;
-    if(!currentUser.isAdmin)renderGames();
+    renderGames();
     if(document.querySelector('#sec-ranking.active'))renderRanking();
     if(document.querySelector('#at-resultados:not([style*="none"])'))renderAdmin();
   });
@@ -456,7 +456,7 @@ function formatDeadline(g){
 
 function renderGames(){
   var el=document.getElementById('gamesList');
-  if(!currentUser||currentUser.isAdmin)return;
+  if(!currentUser)return;
   var uid=currentUser.id;
   var games=state.games&&state.games.length?state.games:defaultGames;
   var html='';
