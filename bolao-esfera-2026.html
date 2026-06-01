@@ -303,7 +303,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
 var db=null;
-window.addEventListener("load", function() {
 const ADMIN_PWD="Esfera2025@";
 const ADMIN_IDS=["F01"];
 
@@ -359,6 +358,7 @@ const defaultGames=[
   {id:"B06",adv:"",date:"",fullDate:""},
 ];
 
+window.addEventListener("load",function(){
 firebase.initializeApp({
   apiKey:"AIzaSyBr8FDpabGso2RNJ1xifJaL7JziEJ4CbbE",
   authDomain:"bolao-esfera-html.firebaseapp.com",
@@ -369,6 +369,7 @@ firebase.initializeApp({
   appId:"1:707967155138:web:466f6a991df1e4779ef45b"
 });
 db=firebase.database();
+});
 
 var state={palpites:{},locked:{},realScores:{},games:null};
 var currentUser=null;
@@ -882,7 +883,6 @@ document.getElementById('podiumOverlay').addEventListener('click',function(e){if
   }, 200);
   setTimeout(function(){clearInterval(checkInterval);}, 3000);
 })();
-}); // end window.load
 </script>
 </body>
 </html>
