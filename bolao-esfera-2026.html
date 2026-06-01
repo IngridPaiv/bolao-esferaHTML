@@ -446,15 +446,19 @@ function startApp(isFirstAccess){
   });
   db.ref('games').once('value',function(snap){if(!snap.val())db.ref('games').set(defaultGames);});
 
-  // Mostra popup de criar senha no primeiro acesso (não admin)
-  if(isFirstAccess&&!currentUser.isAdmin){
-    setTimeout(function(){
-      document.getElementById('newPwd1').value='';
-      document.getElementById('newPwd2').value='';
-      document.getElementById('pwdErrShort').style.display='none';
-      document.getElementById('pwdErrMatch').style.display='none';
-      document.getElementById('modalChangePwd').style.display='flex';
-    },1000);
+  // Mostra popup de criar senha se não tiver senha personalizada
+  if(!currentUser.isAdmin){
+    db.ref('customPwd/'+currentUser.id).once('value',function(snap){
+      if(!snap.val()){
+        setTimeout(function(){
+          document.getElementById('newPwd1').value='';
+          document.getElementById('newPwd2').value='';
+          document.getElementById('pwdErrShort').style.display='none';
+          document.getElementById('pwdErrMatch').style.display='none';
+          document.getElementById('modalChangePwd').style.display='flex';
+        },1200);
+      }
+    });
   }
 }
 
