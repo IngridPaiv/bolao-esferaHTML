@@ -327,7 +327,7 @@ const ADMIN_IDS=["F01"]; // Ingrid tem acesso admin
 // Senha padrão: PrimeiroNome2026EB
 function getDefaultPwd(name){
   var first=name.split(' ')[0];
-  first=first.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  first=first.replace(/[áàãâä]/gi,'a').replace(/[éèêë]/gi,'e').replace(/[íìîï]/gi,'i').replace(/[óòõôö]/gi,'o').replace(/[úùûü]/gi,'u').replace(/[ç]/gi,'c').replace(/[ñ]/gi,'n');
   return first+'2026EB';
 }
 
@@ -395,8 +395,11 @@ let currentUser=null;
 let pendingConfirm=null; // guarda o palpite pendente de confirmação
 
 // Popula select
-const nameSelect=document.getElementById('nameSelect');
-users.forEach(function(u){var o=document.createElement('option');o.value=u.id;o.textContent=u.name;nameSelect.appendChild(o);});
+var nameSelect;
+window.addEventListener('DOMContentLoaded',function(){
+  nameSelect=document.getElementById('nameSelect');
+  users.forEach(function(u){var o=document.createElement('option');o.value=u.id;o.textContent=u.name;nameSelect.appendChild(o);});
+});
 
 function onNameSelect(){
   var val=nameSelect.value;
