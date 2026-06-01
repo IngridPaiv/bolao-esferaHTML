@@ -868,6 +868,8 @@ document.getElementById('podiumOverlay').addEventListener('click',function(e){if
     o.textContent=u.name;
     sel.appendChild(o);
   });
+  // Se já tiver um nome selecionado (ex: browser autofill), mostra o campo de senha
+  if(sel.value) onNameSelect();
 })();
 }); // end window.load
 </script>
