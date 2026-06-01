@@ -221,6 +221,7 @@
       <div class="admin-tabs">
         <button class="admin-tab active" onclick="showAdminTab('resultados')">Resultados</button>
         <button class="admin-tab" onclick="showAdminTab('jogos')">Gerenciar Jogos</button>
+        <button class="admin-tab" onclick="showAdminTab('senhas')">Senhas</button>
       </div>
       <div id="at-resultados">
         <div class="info-box"><i class="ti ti-info-circle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>Salve o resultado de cada jogo. Você pode corrigir a qualquer momento salvando novamente.</div>
@@ -238,6 +239,10 @@
           <button class="btn-primary" onclick="addGame()" style="margin-top:.75rem"><i class="ti ti-plus" style="margin-right:4px"></i>Adicionar jogo</button>
         </div>
         <button class="btn-primary full" onclick="saveGames()" style="margin-top:.75rem"><i class="ti ti-device-floppy" style="margin-right:5px"></i>Salvar alterações</button>
+      </div>
+      <div id="at-senhas" style="display:none">
+        <div class="info-box"><i class="ti ti-info-circle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>Clique em "Resetar" para redefinir a senha de alguém para a senha padrão (Nome2026EB). A pessoa poderá criar uma nova senha no próximo acesso.</div>
+        <div id="senhasList"></div>
       </div>
     </div>
 
@@ -294,6 +299,23 @@
   </div>
 </div>
 
+<!-- MODAL TROCAR SENHA -->
+<div class="modal-overlay" id="modalChangePwd" style="display:none">
+  <div class="modal-box">
+    <div class="modal-icon">🔐</div>
+    <div class="modal-title">Crie sua senha pessoal</div>
+    <div class="modal-msg">Este é seu primeiro acesso! Crie uma senha de sua escolha para os próximos acessos.</div>
+    <input class="txt-input" type="password" id="newPwd1" placeholder="Nova senha" style="margin-bottom:.5rem;text-align:center"/>
+    <input class="txt-input" type="password" id="newPwd2" placeholder="Confirme a nova senha" style="margin-bottom:.5rem;text-align:center"/>
+    <p style="font-size:.75rem;color:#c62828;margin-bottom:.75rem;display:none" id="pwdMismatch">As senhas não coincidem.</p>
+    <p style="font-size:.75rem;color:#c62828;margin-bottom:.75rem;display:none" id="pwdShort">A senha deve ter pelo menos 4 caracteres.</p>
+    <div class="modal-btns">
+      <button class="modal-btn-cancel" onclick="skipChangePwd()">Agora não</button>
+      <button class="modal-btn-ok" onclick="doChangePwd()">Salvar senha</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -302,47 +324,53 @@
 const ADMIN_PWD="Esfera2025@";
 const ADMIN_IDS=["F01"]; // Ingrid tem acesso admin
 
-const users=[
-  {id:"F01",name:"Ingrid Paiva",pwd:"Ingrid26EB"},
-  {id:"F02",name:"Marcio Peres",pwd:"Marcio26EB"},
-  {id:"F03",name:"Roberto Souza",pwd:"Roberto26EB"},
-  {id:"F04",name:"Laiz Eislfeldt",pwd:"Laiz26EB"},
-  {id:"F05",name:"Alexandre Bacelar",pwd:"Alexandre26EB"},
-  {id:"F06",name:"Ana Camargo",pwd:"Ana26EB"},
-  {id:"F07",name:"Natalia Suemi",pwd:"Natalia26EB"},
-  {id:"F08",name:"Ana Flavia",pwd:"AnaFlavia26EB"},
-  {id:"F09",name:"Barbara Câmara",pwd:"Barbara26EB"},
-  {id:"F10",name:"Breno Tenorio",pwd:"Breno26EB"},
-  {id:"F12",name:"Camila Camargo",pwd:"Camila26EB"},
-  {id:"F13",name:"Camilla Reis",pwd:"Camilla26EB"},
-  {id:"F14",name:"Daniela Matos",pwd:"Daniela26EB"},
-  {id:"F15",name:"Evelyn Galvão",pwd:"Evelyn26EB"},
-  {id:"F16",name:"Fernanda Real",pwd:"Fernanda26EB"},
-  {id:"F17",name:"Fernando Meneguin",pwd:"Fernando26EB"},
-  {id:"F18",name:"Gabriel Piante",pwd:"Gabriel26EB"},
-  {id:"F19",name:"Gabriela Gonçalves",pwd:"Gabriela26EB"},
-  {id:"F20",name:"Igor Marcelino",pwd:"Igor26EB"},
-  {id:"F21",name:"Isabella Santos",pwd:"Isabella26EB"},
-  {id:"F22",name:"João Camargo",pwd:"Joao26EB"},
-  {id:"F23",name:"João Prasser",pwd:"JoaoPrasser26EB"},
-  {id:"F24",name:"Leticia Abade",pwd:"Leticia26EB"},
-  {id:"F25",name:"Luis Pereira",pwd:"Luis26EB"},
-  {id:"F26",name:"Ligia Colares",pwd:"Ligia26EB"},
-  {id:"F27",name:"Marcella Alves",pwd:"Marcella26EB"},
-  {id:"F28",name:"Maria Wendt",pwd:"MariaWendt26EB"},
-  {id:"F29",name:"Maria Gonçalves",pwd:"MariaGoncalves26EB"},
-  {id:"F30",name:"Matheus Paiva",pwd:"Matheus26EB"},
-  {id:"F31",name:"Patricia Souza",pwd:"Patricia26EB"},
-  {id:"F32",name:"Samy Back",pwd:"Samy26EB"},
-  {id:"F33",name:"Talita Tavares",pwd:"Talita26EB"},
-  {id:"F34",name:"Thais Sylos",pwd:"Thais26EB"},
-  {id:"F35",name:"Victoria Carvalho",pwd:"Victoria26EB"},
-  {id:"F36",name:"Victor Cinzento",pwd:"Victor26EB"},
-  {id:"F37",name:"Karen Almeida",pwd:"Karen26EB"},
-  {id:"F38",name:"Viviane Nascimento",pwd:"Viviane26EB"},
-  {id:"F39",name:"Michele Brito",pwd:"Michele26EB"},
-];
+// Senha padrão: PrimeiroNome2026EB
+function getDefaultPwd(name){
+  var first=name.split(' ')[0];
+  first=first.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  return first+'2026EB';
+}
 
+const users=[
+  {id:"F01",name:"Ingrid Paiva"},
+  {id:"F02",name:"Marcio Peres"},
+  {id:"F03",name:"Roberto Souza"},
+  {id:"F04",name:"Laiz Eislfeldt"},
+  {id:"F05",name:"Alexandre Bacelar"},
+  {id:"F06",name:"Ana Camargo"},
+  {id:"F07",name:"Natalia Suemi"},
+  {id:"F08",name:"Ana Flavia"},
+  {id:"F09",name:"Barbara Camara"},
+  {id:"F10",name:"Breno Tenorio"},
+  {id:"F11",name:"Camila Camargo"},
+  {id:"F12",name:"Camilla Reis"},
+  {id:"F13",name:"Daniela Matos"},
+  {id:"F14",name:"Evelyn Galvao"},
+  {id:"F15",name:"Fernanda Real"},
+  {id:"F16",name:"Fernando Meneguin"},
+  {id:"F17",name:"Gabriel Piante"},
+  {id:"F18",name:"Gabriela Goncalves"},
+  {id:"F19",name:"Igor Marcelino"},
+  {id:"F20",name:"Isabella Santos"},
+  {id:"F21",name:"Joao Camargo"},
+  {id:"F22",name:"Joao Prasser"},
+  {id:"F23",name:"Leticia Abade"},
+  {id:"F24",name:"Luis Pereira"},
+  {id:"F25",name:"Ligia Colares"},
+  {id:"F26",name:"Marcella Alves"},
+  {id:"F27",name:"Maria Wendt"},
+  {id:"F28",name:"Maria Goncalves"},
+  {id:"F29",name:"Matheus Paiva"},
+  {id:"F30",name:"Patricia Souza"},
+  {id:"F31",name:"Samy Back"},
+  {id:"F32",name:"Talita Tavares"},
+  {id:"F33",name:"Thais Sylos"},
+  {id:"F34",name:"Victoria Carvalho"},
+  {id:"F35",name:"Victor Cinzento"},
+  {id:"F36",name:"Karen Almeida"},
+  {id:"F37",name:"Viviane Nascimento"},
+  {id:"F38",name:"Michele Brito"},
+];
 const defaultGames=[
   {id:"B01",adv:"Marrocos",date:"13/Jun",fullDate:"13/06/2026"},
   {id:"B02",adv:"Haiti",date:"19/Jun",fullDate:"19/06/2026"},
@@ -382,15 +410,22 @@ function doLogin(){
   var selectedId=nameSelect.value;
   if(pwd===ADMIN_PWD){currentUser={id:'ADMIN',name:'Administrador',isAdmin:true};startApp();return;}
   var user=users.find(function(u){return u.id===selectedId;});
-  if(user&&pwd===user.pwd){
-    var isAdmin=ADMIN_IDS.indexOf(user.id)>=0;
-    currentUser=Object.assign({},user,{isAdmin:isAdmin});
-    startApp();
-  } else {
-    document.getElementById('loginErr').style.display='block';
-    document.getElementById('loginPwd').value='';
-    document.getElementById('loginPwd').focus();
-  }
+  if(!user){document.getElementById('loginErr').style.display='block';return;}
+  var defaultPwd=getDefaultPwd(user.name);
+  // Verifica senha customizada no Firebase ou senha padrão
+  db.ref('customPwd/'+user.id).once('value',function(snap){
+    var storedPwd=snap.val();
+    var validPwd=storedPwd||defaultPwd;
+    if(pwd===validPwd){
+      var isAdmin=ADMIN_IDS.indexOf(user.id)>=0;
+      currentUser=Object.assign({},user,{isAdmin:isAdmin,isFirstAccess:!storedPwd});
+      startApp();
+    } else {
+      document.getElementById('loginErr').style.display='block';
+      document.getElementById('loginPwd').value='';
+      document.getElementById('loginPwd').focus();
+    }
+  });
 }
 
 function startApp(){
@@ -399,6 +434,7 @@ function startApp(){
   document.getElementById('welcomeName').textContent='Olá, '+currentUser.name.split(' ')[0]+'!';
   if(currentUser.isAdmin)document.getElementById('adminTab').style.display='block';
   showTab('palpites');
+  if(currentUser.isFirstAccess)setTimeout(function(){document.getElementById('modalChangePwd').style.display='flex';},1200);
   db.ref('.info/connected').on('value',function(snap){
     setStatus(snap.val()?'ok':'err',snap.val()?'Conectado — tempo real':'Sem conexão');
   });
@@ -462,11 +498,13 @@ function showTab(t){
 }
 
 function showAdminTab(t){
-  document.querySelectorAll('.admin-tab').forEach(function(el,i){el.classList.toggle('active',['resultados','jogos'][i]===t);});
+  document.querySelectorAll('.admin-tab').forEach(function(el,i){el.classList.toggle('active',['resultados','jogos','senhas'][i]===t);});
   document.getElementById('at-resultados').style.display=t==='resultados'?'block':'none';
   document.getElementById('at-jogos').style.display=t==='jogos'?'block':'none';
+  document.getElementById('at-senhas').style.display=t==='senhas'?'block':'none';
   if(t==='resultados')renderAdmin();
   if(t==='jogos')renderEditGames();
+  if(t==='senhas')renderSenhas();
 }
 
 function isGameDateLocked(g){
@@ -718,6 +756,55 @@ function saveGames(){
 
 document.getElementById('loginPwd').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 
+function renderSenhas(){
+  var el=document.getElementById('senhasList');
+  var html='';
+  // Load all custom passwords then render
+  db.ref('customPwd').once('value',function(snap){
+    var customPwds=snap.val()||{};
+    users.forEach(function(u){
+      var hasCustom=!!customPwds[u.id];
+      var defaultPwd=getDefaultPwd(u.name);
+      html+='<div class="game-card" style="display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem">'+
+        '<div>'+
+          '<div style="font-size:.85rem;font-weight:600;color:#1a1a1a">'+u.name+'</div>'+
+          '<div style="font-size:.72rem;color:#888;margin-top:2px">'+
+            (hasCustom?'<span style="color:#2e7d32">✓ Senha personalizada</span>':'<span style="color:#888">Usando senha padrão: '+defaultPwd+'</span>')+
+          '</div>'+
+        '</div>'+
+        (hasCustom?'<button onclick="resetPwd(''+u.id+'',''+u.name+'')" style="padding:.4rem .8rem;border:1px solid #fcc;border-radius:8px;background:#fff8f8;color:#c62828;cursor:pointer;font-size:.78rem;font-family:inherit;white-space:nowrap">Resetar</button>':'')+
+      '</div>';
+    });
+    el.innerHTML=html||'<div class="no-data">Nenhum dado encontrado.</div>';
+  });
+}
+
+function resetPwd(uid,name){
+  var defaultPwd=getDefaultPwd(name);
+  if(!confirm('Resetar a senha de '+name+'? Ela voltará para: '+defaultPwd))return;
+  db.ref('customPwd/'+uid).remove().then(function(){
+    showToast('Senha de '+name.split(' ')[0]+' resetada para '+defaultPwd);
+    renderSenhas();
+  }).catch(function(e){showToast('Erro: '+e.message);});
+}
+
+function doChangePwd(){
+  var p1=document.getElementById('newPwd1').value.trim();
+  var p2=document.getElementById('newPwd2').value.trim();
+  document.getElementById('pwdMismatch').style.display='none';
+  document.getElementById('pwdShort').style.display='none';
+  if(p1.length<4){document.getElementById('pwdShort').style.display='block';return;}
+  if(p1!==p2){document.getElementById('pwdMismatch').style.display='block';return;}
+  db.ref('customPwd/'+currentUser.id).set(p1).then(function(){
+    document.getElementById('modalChangePwd').style.display='none';
+    showToast('Senha criada com sucesso!');
+  }).catch(function(e){showToast('Erro: '+e.message);});
+}
+
+function skipChangePwd(){
+  document.getElementById('modalChangePwd').style.display='none';
+}
+
 // HISTÓRICO
 function renderHistorico(){
   var el=document.getElementById('historicoContent');
@@ -863,5 +950,3 @@ document.getElementById('modalAdminOverlay').addEventListener('click',function(e
 </script>
 </body>
 </html>
-
-
