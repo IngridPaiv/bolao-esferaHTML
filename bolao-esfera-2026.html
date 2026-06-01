@@ -302,6 +302,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
+var db=null;
 window.addEventListener("load", function() {
 const ADMIN_PWD="Esfera2025@";
 const ADMIN_IDS=["F01"];
@@ -367,7 +368,7 @@ firebase.initializeApp({
   messagingSenderId:"707967155138",
   appId:"1:707967155138:web:466f6a991df1e4779ef45b"
 });
-const db=firebase.database();
+db=firebase.database();
 
 var state={palpites:{},locked:{},realScores:{},games:null};
 var currentUser=null;
