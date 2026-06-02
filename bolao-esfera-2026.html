@@ -784,13 +784,17 @@ function renderRanking(){
       html+='<div style="padding:1.25rem;text-align:center;color:#aaa;font-size:.85rem">Nenhum palpite confirmado ainda.</div>';
     } else {
       html+='<table class="ranking-table"><thead><tr><th>#</th><th>Participante</th><th>Palpite</th><th style="text-align:right">Pts</th></tr></thead><tbody>';
+      var rank=1;
       scorers.forEach(function(u,i){
+        // Calcula posição real considerando empate
+        if(i>0&&scorers[i].pts<scorers[i-1].pts)rank=i+1;
+        var medalha=medals[rank-1]||(rank+'º');
         var ptsBadge='';
         if(u.pts===5)ptsBadge='<span class="rank-game-chip chip-5">5 🎯</span>';
         else if(u.pts===3)ptsBadge='<span class="rank-game-chip chip-3">3 ⚽</span>';
         else if(u.pts===1)ptsBadge='<span class="rank-game-chip chip-1">1 🤝</span>';
         else ptsBadge='<span class="rank-game-chip chip-0">0 ❌</span>';
-        html+='<tr><td>'+(medals[i]||((i+1)+'º'))+'</td><td style="font-size:.82rem">'+u.name+'</td>';
+        html+='<tr><td>'+medalha+'</td><td style="font-size:.82rem">'+u.name+'</td>';
         html+='<td style="font-size:.82rem;color:#888">'+u.palpite.brasil+' × '+u.palpite.adv+'</td>';
         html+='<td style="text-align:right">'+ptsBadge+'</td></tr>';
       });
