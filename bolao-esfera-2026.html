@@ -784,11 +784,13 @@ function renderRanking(){
       html+='<div style="padding:1.25rem;text-align:center;color:#aaa;font-size:.85rem">Nenhum palpite confirmado ainda.</div>';
     } else {
       html+='<table class="ranking-table"><thead><tr><th>#</th><th>Participante</th><th>Palpite</th><th style="text-align:right">Pts</th></tr></thead><tbody>';
-      var rank=1;
       scorers.forEach(function(u,i){
-        // Calcula posição real considerando empate
-        if(i>0&&scorers[i].pts<scorers[i-1].pts)rank=i+1;
-        var medalha=medals[rank-1]||(rank+'º');
+        // Medalha baseada nos PONTOS, não na posição
+        var medalha='';
+        if(u.pts===5)medalha='🥇';
+        else if(u.pts===3)medalha='🥈';
+        else if(u.pts===1)medalha='🥉';
+        else medalha='—';
         var ptsBadge='';
         if(u.pts===5)ptsBadge='<span class="rank-game-chip chip-5">5 🎯</span>';
         else if(u.pts===3)ptsBadge='<span class="rank-game-chip chip-3">3 ⚽</span>';
