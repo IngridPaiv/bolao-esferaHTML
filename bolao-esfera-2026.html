@@ -908,7 +908,7 @@ function renderAdminPremio(){
       '<div style="display:flex;gap:.5rem;align-items:center">'+
       '<span style="font-size:.85rem;color:#555;font-weight:500">R$</span>'+
       '<input class="txt-input" type="number" min="0" step="0.01" value="'+(val||'')+'" placeholder="0,00" id="premio_'+g.id+'" style="max-width:160px"/>'+
-      '<button onclick="salvarPremio(''+g.id+'')" style="padding:.55rem 1rem;background:var(--eb);color:#fff;border:none;border-radius:8px;font-size:.82rem;cursor:pointer;font-weight:600;white-space:nowrap">'+
+      '<button onclick="salvarPremio(\''+g.id+'\')" style="padding:.55rem 1rem;background:var(--eb);color:#fff;border:none;border-radius:8px;font-size:.82rem;cursor:pointer;font-weight:600;white-space:nowrap">'+
       '<i class="ti ti-device-floppy" style="margin-right:4px"></i>Salvar</button>'+
       '</div></div>';
   });
