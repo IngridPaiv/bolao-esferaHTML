@@ -130,14 +130,6 @@
     /* AVISO PLACAR LOTADO */
     .placar-warn{font-size:.75rem;color:#e65100;background:#fff3e0;border:1px solid #ffcc80;border-radius:8px;padding:.45rem .75rem;margin-top:.5rem;display:flex;align-items:center;gap:5px}
     .placar-warn-danger{font-size:.75rem;color:#b71c1c;background:#ffebee;border:1px solid #ef9a9a;border-radius:8px;padding:.45rem .75rem;margin-top:.5rem;display:flex;align-items:center;gap:5px}
-    /* VALOR ARRECADADO */
-    .premio-banner{background:linear-gradient(135deg,#1a2e4a 0%,#2563a8 100%);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 8px rgba(37,99,168,.2)}
-    .premio-label{font-size:.78rem;color:rgba(255,255,255,.7);font-weight:500}
-    .premio-valor{font-size:1.5rem;font-weight:700;color:#fff;margin-top:2px}
-    .premio-sub{font-size:.7rem;color:rgba(255,255,255,.55);margin-top:2px}
-    .premio-icon{font-size:2.2rem;opacity:.9}
-    .admin-premio-box{background:#f9f9fb;border:1px solid #e8e8e8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:.75rem}
-    .admin-premio-title{font-size:.82rem;font-weight:600;color:#1a1a1a;margin-bottom:.75rem;display:flex;align-items:center;gap:6px}
   </style>
 </head>
 <body>
@@ -189,7 +181,6 @@
         </div>
         <button class="btn-logout" onclick="doLogout()"><i class="ti ti-logout" style="font-size:12px;margin-right:3px"></i>Sair</button>
       </div>
-      <div id="premioBanner" style="display:none" class="premio-banner"><div><div class="premio-label">💰 Prêmio do jogo</div><div class="premio-valor" id="premioValorDisplay">R$ —</div><div class="premio-sub">Apenas 1º lugar premiado · máx. 4 ganhadores</div></div><div class="premio-icon">🏆</div></div>
       <div id="gamesList"><div class="no-data">Carregando jogos...</div></div>
     </div>
 
@@ -207,16 +198,11 @@
       <div class="admin-tabs">
         <button class="admin-tab active" onclick="showAdminTab('resultados')">Resultados</button>
         <button class="admin-tab" onclick="showAdminTab('jogos')">Gerenciar Jogos</button>
-        <button class="admin-tab" onclick="showAdminTab('premio')">Prêmio</button>
         <button class="admin-tab" onclick="showAdminTab('senhas')">Senhas</button>
       </div>
       <div id="at-resultados">
         <div class="info-box"><i class="ti ti-info-circle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>Salve o resultado de cada jogo. Você pode corrigir a qualquer momento salvando novamente.</div>
         <div id="adminGames"></div>
-      </div>
-      <div id="at-premio" style="display:none">
-        <div class="info-box"><i class="ti ti-info-circle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>Defina o valor total arrecadado para cada jogo. Os jogadores verão o prêmio em destaque.</div>
-        <div id="premioGamesList"></div>
       </div>
       <div id="at-jogos" style="display:none">
         <div id="editGamesList"></div>
@@ -247,8 +233,7 @@
       </div>
       <div class="rules-card">
         <div class="rule-row"><div><div style="font-size:.85rem;font-weight:600;color:#1a1a1a"><i class="ti ti-lock" style="color:var(--ea);margin-right:5px"></i>Quando os palpites travam</div><div class="rule-example">• Ao confirmar manualmente • No dia do jogo (automático) • Quando o admin salvar o resultado</div></div></div>
-        <div class="rule-row"><div><div style="font-size:.85rem;font-weight:600;color:#1a1a1a"><i class="ti ti-trophy" style="color:var(--ea);margin-right:5px"></i>Premiação</div><div class="rule-example">• Apenas o 1º lugar é premiado • Em caso de empate, o prêmio é dividido entre os ganhadores</div></div></div>
-        <div class="rule-row"><div><div style="font-size:.85rem;font-weight:600;color:#1a1a1a"><i class="ti ti-users" style="color:var(--ea);margin-right:5px"></i>Limite por placar</div><div class="rule-example">• Máximo de 4 pessoas com o mesmo placar por jogo • Se lotado, escolha outro resultado</div></div></div>
+        <div class="rule-row"><div><div style="font-size:.85rem;font-weight:600;color:#1a1a1a"><i class="ti ti-users" style="color:var(--ea);margin-right:5px"></i>Limite por placar</div><div class="rule-example">• Máximo de 4 pessoas por placar por jogo • Se lotado, escolha outro resultado</div></div></div>
       </div>
     </div>
   </div>
@@ -391,7 +376,7 @@ firebase.initializeApp({
   appId:"1:707967155138:web:466f6a991df1e4779ef45b"
 });
 var db = firebase.database();
-var state = {palpites:{}, locked:{}, realScores:{}, games:null, premios:{}};
+var state = {palpites:{}, locked:{}, realScores:{}, games:null};
 var currentUser = null;
 var pendingConfirm = null;
 var pendingResult = null;
@@ -452,8 +437,6 @@ function startApp(isFirstAccess) {
     state.locked = data.locked || {};
     state.realScores = data.realScores || {};
     state.games = data.games && data.games.length ? data.games : null;
-    state.premios = data.premios || {};
-    renderPremioBanner();
     renderGames();
     if (document.querySelector('#sec-ranking.active')) renderRanking();
     if (document.querySelector('#sec-historico.active')) renderHistorico();
@@ -584,11 +567,9 @@ function showAdminTab(t){
   document.querySelectorAll('.admin-tab').forEach(function(el,i){ el.classList.toggle('active',['resultados','jogos','senhas'][i]===t); });
   document.getElementById('at-resultados').style.display=t==='resultados'?'block':'none';
   document.getElementById('at-jogos').style.display=t==='jogos'?'block':'none';
-  document.getElementById('at-premio').style.display=t==='premio'?'block':'none';
   document.getElementById('at-senhas').style.display=t==='senhas'?'block':'none';
   if(t==='resultados') renderAdmin();
   if(t==='jogos') renderEditGames();
-  if(t==='premio') renderAdminPremio();
   if(t==='senhas') renderSenhas();
 }
 
@@ -870,59 +851,6 @@ function showPodium(pos,pts){
   document.getElementById('podiumOverlay').style.display='flex';
 }
 function closePodium(){ document.getElementById('podiumOverlay').style.display='none'; }
-
-// ---- PRÊMIO ----
-function renderPremioBanner(){
-  var games=state.games&&state.games.length?state.games:defaultGames;
-  // Pega o próximo jogo não encerrado
-  var jogoAtivo=null;
-  for(var i=0;i<games.length;i++){
-    var g=games[i];
-    if(g.adv&&!isGameClosed(g)){ jogoAtivo=g; break; }
-  }
-  // Se não há próximo, pega o último encerrado
-  if(!jogoAtivo){ for(var i=games.length-1;i>=0;i--){ if(games[i].adv){ jogoAtivo=games[i]; break; } } }
-  var banner=document.getElementById('premioBanner');
-  var valEl=document.getElementById('premioValorDisplay');
-  if(!banner||!valEl) return;
-  if(jogoAtivo&&state.premios[jogoAtivo.id]){
-    var val=state.premios[jogoAtivo.id];
-    valEl.textContent='R$ '+parseFloat(val).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-    banner.style.display='flex';
-  } else {
-    banner.style.display='none';
-  }
-}
-
-function renderAdminPremio(){
-  var el=document.getElementById('premioGamesList');
-  var games=state.games&&state.games.length?state.games:defaultGames;
-  var html='';
-  games.forEach(function(g){
-    if(!g.adv) return;
-    var val=state.premios[g.id]||'';
-    html+='<div class="admin-premio-box">'+
-      '<div class="admin-premio-title"><i class="ti ti-trophy" style="color:var(--ea);font-size:15px"></i>'+
-      (g.adv?'🇧🇷 Brasil × '+g.adv:'Jogo '+g.id)+
-      '<span style="font-size:.72rem;color:#aaa;font-weight:400;margin-left:4px">'+(g.date||'')+'</span></div>'+
-      '<div style="display:flex;gap:.5rem;align-items:center">'+
-      '<span style="font-size:.85rem;color:#555;font-weight:500">R$</span>'+
-      '<input class="txt-input" type="number" min="0" step="0.01" value="'+(val||'')+'" placeholder="0,00" id="premio_'+g.id+'" style="max-width:160px"/>'+
-      '<button onclick="salvarPremio(\''+g.id+'\')" style="padding:.55rem 1rem;background:var(--eb);color:#fff;border:none;border-radius:8px;font-size:.82rem;cursor:pointer;font-weight:600;white-space:nowrap">'+
-      '<i class="ti ti-device-floppy" style="margin-right:4px"></i>Salvar</button>'+
-      '</div></div>';
-  });
-  if(!html) html='<div class="no-data">Nenhum jogo configurado ainda.</div>';
-  el.innerHTML=html;
-}
-
-function salvarPremio(gid){
-  var inp=document.getElementById('premio_'+gid);
-  if(!inp){ showToast('Campo não encontrado.'); return; }
-  var val=parseFloat(inp.value);
-  if(isNaN(val)||val<0){ showToast('Informe um valor válido.'); return; }
-  db.ref('premios/'+gid).set(val).then(function(){ showToast('Prêmio salvo!'); }).catch(function(e){ showToast('Erro: '+e.message); });
-}
 
 // ---- EVENTS ----
 document.getElementById('loginPwd').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
