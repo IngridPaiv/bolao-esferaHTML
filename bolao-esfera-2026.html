@@ -239,14 +239,10 @@
 
         <div id="sec-regras" class="section">
       <div class="rules-card">
-        <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-trophy" style="color:var(--ea);margin-right:5px"></i>Premiacao</div><div class="rule-example">Apenas o 1 lugar e premiado. Em empate, o premio e dividido entre os ganhadores.</div></div></div>
-        <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-users" style="color:var(--ea);margin-right:5px"></i>Limite de palpites iguais</div><div class="rule-example">Maximo de 4 pessoas com o mesmo placar por jogo. Se lotado, escolha outro placar.</div></div></div>
+        <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-trophy" style="color:var(--ea);margin-right:5px"></i>Premiacao</div><div class="rule-example">Apenas quem acerta o placar exato ganha. O premio e dividido entre os ganhadores (maximo 4 pessoas com o mesmo placar).</div></div></div>
+        <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-lock" style="color:var(--ea);margin-right:5px"></i>Limite de palpites iguais</div><div class="rule-example">Maximo de 4 pessoas com o mesmo placar por jogo. Se lotado, escolha outro placar.</div></div></div>
       </div>
-    </div><span class="rule-pts">5 pts</span></div>
-        <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-circle-check" style="color:var(--ea);margin-right:5px"></i>Acerta gols de um lado</div><div class="rule-example">ex: chutou 2×1, deu 2×0</div></div><span class="rule-pts">3 pts</span></div>
-        <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-trophy" style="color:var(--ea);margin-right:5px"></i>Acerta só o vencedor</div><div class="rule-example">ex: chutou vitória do Brasil, Brasil ganhou</div></div><span class="rule-pts">1 pt</span></div>
-        <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-x" style="color:#c62828;margin-right:5px"></i>Errou o vencedor</div></div><span class="rule-pts" style="color:#c62828">0 pts</span></div>
-      </div>
+    </div>
       <div class="rules-card">
         <div class="rule-row"><div><div style="font-size:.85rem;font-weight:600;color:#1a1a1a"><i class="ti ti-lock" style="color:var(--ea);margin-right:5px"></i>Quando os palpites travam</div><div class="rule-example">• Ao confirmar manualmente • No dia do jogo (automático) • Quando o admin salvar o resultado</div></div></div>
         <div class="rule-row"><div><div style="font-size:.85rem;font-weight:600;color:#1a1a1a"><i class="ti ti-users" style="color:var(--ea);margin-right:5px"></i>Limite por placar</div><div class="rule-example">• Máximo de 4 pessoas por placar por jogo • Se lotado, escolha outro resultado</div></div></div>
@@ -538,8 +534,6 @@ function showToast(msg) {
 function calcPts(pb,pa,rb,ra) {
   if (rb===null||ra===null) return null;
   if (pb===rb&&pa===ra) return 5;
-  if (pb===rb||pa===ra) return 3;
-  if (Math.sign(pb-pa)===Math.sign(rb-ra)) return 1;
   return 0;
 }
 function getGame(gid){ var games=state.games&&state.games.length?state.games:defaultGames; return games.find(function(g){return g.id===gid;})||null; }
@@ -761,8 +755,7 @@ function renderHistorico(){
     var ptsHtml='<span class="hist-pending">Aguardando</span>';
     if(!hasPalpite) ptsHtml='<span class="hist-pending">Sem palpite</span>';
     else if(pts===5) ptsHtml='<span class="hist-pts-5">+5 pts 🎯</span>';
-    else if(pts===3) ptsHtml='<span class="hist-pts-3">+3 pts ⚽</span>';
-    else if(pts===1) ptsHtml='<span class="hist-pts-1">+1 pt 🤝</span>';
+
     else if(pts===0) ptsHtml='<span class="hist-pts-0">0 pts ❌</span>';
     html+='<div class="hist-card">'+
       '<div class="hist-game-title"><span>'+(g.adv?'🇧🇷 Brasil × '+g.adv:'Jogo '+g.id)+'</span>'+ptsHtml+'</div>'+
@@ -796,8 +789,8 @@ function renderRanking(){
     else {
       html+='<table class="ranking-table"><thead><tr><th>#</th><th>Participante</th><th>Palpite</th><th style="text-align:right">Pts</th></tr></thead><tbody>';
       scorers.forEach(function(u){
-        var medalha=u.pts===5?'🥇':u.pts===3?'🥈':u.pts===1?'🥉':'—';
-        var ptsBadge=u.pts===5?'<span class="rank-game-chip chip-5">5 🎯</span>':u.pts===3?'<span class="rank-game-chip chip-3">3 ⚽</span>':u.pts===1?'<span class="rank-game-chip chip-1">1 🤝</span>':'<span class="rank-game-chip chip-0">0 ❌</span>';
+        var medalha=u.pts===5?'🥇':'—';
+        var ptsBadge=u.pts===5?'<span class="rank-game-chip chip-5">Acertou &#127919;</span>':'<span class="rank-game-chip chip-0">Errou ❌</span>';
         html+='<tr><td>'+medalha+'</td><td style="font-size:.82rem">'+u.name+'</td><td style="font-size:.82rem;color:#888">'+u.palpite.brasil+' × '+u.palpite.adv+'</td><td style="text-align:right">'+ptsBadge+'</td></tr>';
       });
       html+='</tbody></table>';
