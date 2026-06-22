@@ -190,7 +190,7 @@
         </div>
         <button class="btn-logout" onclick="doLogout()"><i class="ti ti-logout" style="font-size:12px;margin-right:3px"></i>Sair</button>
       </div>
-      <div id="premioBanner" style="display:none" class="premio-banner"><div><div class="premio-label">Prêmio do jogo</div><div class="premio-valor" id="premioValorDisplay">R$ —</div><div class="premio-sub">Apenas 1º lugar premiado · máx. 4 ganhadores</div></div><div class="premio-icon">🏆</div></div>
+      <div id="premioBanner" style="display:none" class="premio-banner"><div><div class="premio-label" id="premioAdvDisplay">Prêmio do jogo</div><div class="premio-valor" id="premioValorDisplay">R$ —</div><div class="premio-sub">Apenas 1º lugar premiado · máx. 4 ganhadores</div></div><div class="premio-icon">🏆</div></div>
       <div id="gamesList"><div class="no-data">Carregando jogos...</div></div>
     </div>
 
@@ -247,9 +247,9 @@
         <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-x" style="color:#c62828;margin-right:5px"></i>Errou o vencedor</div></div><span class="rule-pts" style="color:#c62828">0 pts</span></div>
       </div>
       <div class="rules-card">
-        <div class="rule-row"><div><div style="font-size:.85rem;font-weight:600;color:#1a1a1a"><i class="ti ti-lock" style="color:var(--ea);margin-right:5px"></i>Quando os palpites travam</div><div class="rule-example">• Ao confirmar manualmente • No dia do jogo (automático) • Quando o admin salvar o resultado</div></div></div>
+        
         <div class="rule-row"><div><div style="font-size:.85rem;font-weight:600;color:#1a1a1a"><i class="ti ti-trophy" style="color:var(--ea);margin-right:5px"></i>Premiação</div><div class="rule-example">• Apenas o 1º lugar é premiado • Em empate, o prêmio é dividido (máx. 4 ganhadores)</div></div></div>
-        <div class="rule-row"><div><div style="font-size:.85rem;font-weight:600;color:#1a1a1a"><i class="ti ti-users" style="color:var(--ea);margin-right:5px"></i>Limite por placar</div><div class="rule-example">• Máximo de 4 pessoas com o mesmo placar por jogo • Se lotado, escolha outro resultado</div></div></div>
+        
       </div>
     </div>
   </div>
@@ -883,10 +883,14 @@ function renderPremioBanner(){
   if(!jogoAtivo){ for(var i=games.length-1;i>=0;i--){ if(games[i].adv){ jogoAtivo=games[i]; break; } } }
   var banner=document.getElementById('premioBanner');
   var valEl=document.getElementById('premioValorDisplay');
+  var advEl=document.getElementById('premioAdvDisplay');
   if(!banner||!valEl) return;
-  if(jogoAtivo&&state.premios[jogoAtivo.id]){
-    var val=state.premios[jogoAtivo.id];
+  var premioData = jogoAtivo && state.premios[jogoAtivo.id] ? state.premios[jogoAtivo.id] : null;
+  if(jogoAtivo && premioData){
+    var val = typeof premioData === 'object' ? premioData.valor : premioData;
+    var adv = (typeof premioData === 'object' && premioData.adv) ? premioData.adv : (jogoAtivo.adv||'');
     valEl.textContent='R$ '+parseFloat(val).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    if(advEl) advEl.textContent = adv ? '🇧🇷 Brasil x '+adv : 'Prêmio do jogo';
     banner.style.display='flex';
   } else {
     banner.style.display='none';
@@ -898,17 +902,24 @@ function renderAdminPremio(){
   var games=state.games&&state.games.length?state.games:defaultGames;
   var html='';
   games.forEach(function(g){
-    if(!g.adv) return;
-    var val=state.premios[g.id]||'';
     var gid=g.id;
+    var premioData=state.premios[gid]||{};
+    var val = typeof premioData === 'object' ? (premioData.valor||'') : (premioData||'');
+    var advAtual = typeof premioData === 'object' ? (premioData.adv||g.adv||'') : (g.adv||'');
     html+='<div class="admin-premio-box">';
     html+='<div class="admin-premio-title">';
-    html+=(g.adv ? 'Brasil x '+g.adv : 'Jogo '+gid);
-    html+=' <span style="font-size:.72rem;color:#aaa;font-weight:400">'+(g.date||'')+'</span></div>';
+    html+='Jogo '+gid+(g.date?' — '+g.date:'');
+    html+='</div>';
+    html+='<div style="display:flex;flex-direction:column;gap:.5rem">';
     html+='<div style="display:flex;gap:.5rem;align-items:center">';
-    html+='<span style="font-size:.85rem;color:#555;font-weight:500">R$</span>';
-    html+='<input class="txt-input" type="number" min="0" step="0.01" value="'+val+'" placeholder="0,00" id="premio_'+gid+'" style="max-width:160px"/>';
-    html+='<button id="btnpremio_'+gid+'" onclick="salvarPremio(this)" data-gid="'+gid+'" style="padding:.55rem 1rem;background:#1a2e4a;color:#fff;border:none;border-radius:8px;font-size:.82rem;cursor:pointer;font-weight:600;white-space:nowrap">Salvar</button>';
+    html+='<span style="font-size:.82rem;color:#555;min-width:80px">Adversário:</span>';
+    html+='<input class="txt-input" type="text" value="'+advAtual+'" placeholder="ex: Escócia" id="premioAdv_'+gid+'" style="flex:1"/>';
+    html+='</div>';
+    html+='<div style="display:flex;gap:.5rem;align-items:center">';
+    html+='<span style="font-size:.82rem;color:#555;min-width:80px">Prêmio R$:</span>';
+    html+='<input class="txt-input" type="number" min="0" step="0.01" value="'+val+'" placeholder="0,00" id="premioVal_'+gid+'" style="flex:1"/>';
+    html+='</div>';
+    html+='<button onclick="salvarPremio(this)" data-gid="'+gid+'" style="padding:.55rem 1rem;background:#1a2e4a;color:#fff;border:none;border-radius:8px;font-size:.82rem;cursor:pointer;font-weight:600">Salvar</button>';
     html+='</div></div>';
   });
   if(!html) html='<div class="no-data">Nenhum jogo configurado ainda.</div>';
@@ -917,11 +928,13 @@ function renderAdminPremio(){
 
 function salvarPremio(btn){
   var gid=btn.getAttribute('data-gid');
-  var inp=document.getElementById('premio_'+gid);
-  if(!inp){ showToast('Campo nao encontrado.'); return; }
-  var val=parseFloat(inp.value);
+  var inpVal=document.getElementById('premioVal_'+gid);
+  var inpAdv=document.getElementById('premioAdv_'+gid);
+  if(!inpVal){ showToast('Campo nao encontrado.'); return; }
+  var val=parseFloat(inpVal.value);
   if(isNaN(val)||val<0){ showToast('Informe um valor valido.'); return; }
-  db.ref('premios/'+gid).set(val).then(function(){ showToast('Premio salvo!'); }).catch(function(e){ showToast('Erro: '+e.message); });
+  var adv=inpAdv?inpAdv.value.trim():'';
+  db.ref('premios/'+gid).set({valor:val,adv:adv}).then(function(){ showToast('Premio salvo!'); }).catch(function(e){ showToast('Erro: '+e.message); });
 }
 
 // ---- EVENTS ----
