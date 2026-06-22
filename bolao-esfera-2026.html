@@ -131,7 +131,6 @@
     .placar-warn{font-size:.75rem;color:#e65100;background:#fff3e0;border:1px solid #ffcc80;border-radius:8px;padding:.45rem .75rem;margin-top:.5rem;display:flex;align-items:center;gap:5px}
     .placar-warn-danger{font-size:.75rem;color:#b71c1c;background:#ffebee;border:1px solid #ef9a9a;border-radius:8px;padding:.45rem .75rem;margin-top:.5rem;display:flex;align-items:center;gap:5px}
 
-    /* VALOR ARRECADADO */
     .premio-banner{background:#1a2e4a;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
     .premio-label{font-size:.78rem;color:rgba(255,255,255,.7);font-weight:500}
     .premio-valor{font-size:1.5rem;font-weight:700;color:#fff;margin-top:2px}
@@ -190,7 +189,7 @@
         </div>
         <button class="btn-logout" onclick="doLogout()"><i class="ti ti-logout" style="font-size:12px;margin-right:3px"></i>Sair</button>
       </div>
-      <div id="premioBanner" style="display:none" class="premio-banner"><div><div class="premio-label" id="premioAdvDisplay">Prêmio do jogo</div><div class="premio-valor" id="premioValorDisplay">R$ —</div><div class="premio-sub">Apenas 1º lugar premiado · máx. 4 ganhadores</div></div><div class="premio-icon">🏆</div></div>
+      <div id="premioBanner" style="display:none" class="premio-banner"><div><div class="premio-label" id="premioAdvDisplay">Premio do jogo</div><div class="premio-valor" id="premioValorDisplay">R$ --</div><div class="premio-sub">Apenas 1 lugar premiado - max. 4 ganhadores</div></div><div class="premio-icon">&#127942;</div></div>
       <div id="gamesList"><div class="no-data">Carregando jogos...</div></div>
     </div>
 
@@ -208,7 +207,7 @@
       <div class="admin-tabs">
         <button class="admin-tab active" onclick="showAdminTab('resultados')">Resultados</button>
         <button class="admin-tab" onclick="showAdminTab('jogos')">Gerenciar Jogos</button>
-        <button class="admin-tab" onclick="showAdminTab('premio')">Prêmio</button>
+        <button class="admin-tab" onclick="showAdminTab('premio')">Premio</button>
         <button class="admin-tab" onclick="showAdminTab('senhas')">Senhas</button>
       </div>
       <div id="at-resultados">
@@ -229,7 +228,7 @@
         <button class="btn-primary full" onclick="saveGames()" style="margin-top:.75rem"><i class="ti ti-device-floppy" style="margin-right:5px"></i>Salvar alterações</button>
       </div>
       <div id="at-premio" style="display:none">
-        <div class="info-box">Defina o valor arrecadado por jogo. Os jogadores verão o prêmio em destaque.</div>
+        <div class="info-box">Defina o adversario e o valor do premio por jogo.</div>
         <div id="premioGamesList"></div>
       </div>
       <div id="at-senhas" style="display:none">
@@ -239,18 +238,15 @@
     </div>
 
     <div id="sec-regras" class="section">
-      <p class="section-title">Sistema de pontuação</p>
-      <div class="rules-card">
-        <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-crosshair" style="color:var(--ea);margin-right:5px"></i>Placar exato</div><div class="rule-example">ex: chutou 2×1, deu 2×1</div></div><span class="rule-pts">5 pts</span></div>
+      <span class="rule-pts">5 pts</span></div>
         <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-circle-check" style="color:var(--ea);margin-right:5px"></i>Acerta gols de um lado</div><div class="rule-example">ex: chutou 2×1, deu 2×0</div></div><span class="rule-pts">3 pts</span></div>
         <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-trophy" style="color:var(--ea);margin-right:5px"></i>Acerta só o vencedor</div><div class="rule-example">ex: chutou vitória do Brasil, Brasil ganhou</div></div><span class="rule-pts">1 pt</span></div>
         <div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-x" style="color:#c62828;margin-right:5px"></i>Errou o vencedor</div></div><span class="rule-pts" style="color:#c62828">0 pts</span></div>
       </div>
-      <div class="rules-card">
-        
-        <div class="rule-row"><div><div style="font-size:.85rem;font-weight:600;color:#1a1a1a"><i class="ti ti-trophy" style="color:var(--ea);margin-right:5px"></i>Premiação</div><div class="rule-example">• Apenas o 1º lugar é premiado • Em empate, o prêmio é dividido (máx. 4 ganhadores)</div></div></div>
-        
-      </div>
+      <div class="rules-card"><div class="rule-row"><div><div style="font-size:.9rem;font-weight:600;color:#1a1a1a"><i class="ti ti-trophy" style="color:var(--ea);margin-right:5px"></i>Premiacao</div><div class="rule-example">Apenas o 1 lugar e premiado. Em caso de empate, o premio e dividido entre os ganhadores (maximo 4 pessoas).</div></div></div></div>
+    </div>
+  </div>
+</div>
     </div>
   </div>
 </div>
@@ -888,9 +884,10 @@ function renderPremioBanner(){
   var premioData = jogoAtivo && state.premios[jogoAtivo.id] ? state.premios[jogoAtivo.id] : null;
   if(jogoAtivo && premioData){
     var val = typeof premioData === 'object' ? premioData.valor : premioData;
-    var adv = (typeof premioData === 'object' && premioData.adv) ? premioData.adv : (jogoAtivo.adv||'');
+    var adv = (typeof premioData === 'object' && premioData.adv && premioData.adv.trim()) ? premioData.adv.trim() : (jogoAtivo.adv||'');
+    if(!val || isNaN(parseFloat(val))){ banner.style.display='none'; return; }
     valEl.textContent='R$ '+parseFloat(val).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-    if(advEl) advEl.textContent = adv ? '🇧🇷 Brasil x '+adv : 'Prêmio do jogo';
+    if(advEl) advEl.textContent = adv ? 'Brasil x '+adv : 'Premio do jogo';
     banner.style.display='flex';
   } else {
     banner.style.display='none';
@@ -907,16 +904,14 @@ function renderAdminPremio(){
     var val = typeof premioData === 'object' ? (premioData.valor||'') : (premioData||'');
     var advAtual = typeof premioData === 'object' ? (premioData.adv||g.adv||'') : (g.adv||'');
     html+='<div class="admin-premio-box">';
-    html+='<div class="admin-premio-title">';
-    html+='Jogo '+gid+(g.date?' — '+g.date:'');
-    html+='</div>';
+    html+='<div class="admin-premio-title">Jogo '+gid+(g.date?' - '+g.date:'')+'</div>';
     html+='<div style="display:flex;flex-direction:column;gap:.5rem">';
     html+='<div style="display:flex;gap:.5rem;align-items:center">';
-    html+='<span style="font-size:.82rem;color:#555;min-width:80px">Adversário:</span>';
-    html+='<input class="txt-input" type="text" value="'+advAtual+'" placeholder="ex: Escócia" id="premioAdv_'+gid+'" style="flex:1"/>';
+    html+='<span style="font-size:.82rem;color:#555;min-width:80px">Adversario:</span>';
+    html+='<input class="txt-input" type="text" value="'+advAtual+'" placeholder="ex: Escocia" id="premioAdv_'+gid+'" style="flex:1"/>';
     html+='</div>';
     html+='<div style="display:flex;gap:.5rem;align-items:center">';
-    html+='<span style="font-size:.82rem;color:#555;min-width:80px">Prêmio R$:</span>';
+    html+='<span style="font-size:.82rem;color:#555;min-width:80px">Premio R$:</span>';
     html+='<input class="txt-input" type="number" min="0" step="0.01" value="'+val+'" placeholder="0,00" id="premioVal_'+gid+'" style="flex:1"/>';
     html+='</div>';
     html+='<button onclick="salvarPremio(this)" data-gid="'+gid+'" style="padding:.55rem 1rem;background:#1a2e4a;color:#fff;border:none;border-radius:8px;font-size:.82rem;cursor:pointer;font-weight:600">Salvar</button>';
