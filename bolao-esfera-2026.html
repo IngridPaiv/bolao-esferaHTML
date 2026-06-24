@@ -127,10 +127,8 @@
     .trophy-animation{font-size:4rem;animation:trophyGlow 1.2s ease-in-out infinite;margin-bottom:.5rem;display:block}
     @keyframes trophyGlow{0%,100%{transform:scale(1);filter:drop-shadow(0 0 8px gold)}50%{transform:scale(1.15);filter:drop-shadow(0 0 20px gold)}}
     .pwd-error{font-size:.78rem;color:#c62828;margin-top:.35rem;display:none}
-    /* AVISO PLACAR LOTADO */
     .placar-warn{font-size:.75rem;color:#e65100;background:#fff3e0;border:1px solid #ffcc80;border-radius:8px;padding:.45rem .75rem;margin-top:.5rem;display:flex;align-items:center;gap:5px}
     .placar-warn-danger{font-size:.75rem;color:#b71c1c;background:#ffebee;border:1px solid #ef9a9a;border-radius:8px;padding:.45rem .75rem;margin-top:.5rem;display:flex;align-items:center;gap:5px}
-
     .premio-banner{background:#1a2e4a;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
     .premio-label{font-size:.78rem;color:rgba(255,255,255,.7);font-weight:500}
     .premio-valor{font-size:1.5rem;font-weight:700;color:#fff;margin-top:2px}
@@ -178,7 +176,6 @@
       <button class="tab" onclick="showTab('ranking')">Ranking por Jogo</button>
       <button class="tab" onclick="showTab('historico')">Histórico</button>
       <button class="tab" id="adminTab" style="display:none" onclick="showTab('admin')"><i class="ti ti-lock" style="font-size:12px;margin-right:3px"></i>Admin</button>
-      
     </div>
 
     <div id="sec-palpites" class="section active">
@@ -317,8 +314,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 <script>
-// ---- CONFIGURAÇÃO ----
-const LIMITE_PALPITES_IGUAIS = 4; // max pessoas com mesmo placar por jogo
+const LIMITE_PALPITES_IGUAIS = 4;
 const ADMIN_PWD = "Esfera2025@";
 const ADMIN_IDS = ["F01"];
 
@@ -361,6 +357,7 @@ const users = [
   {id:"F37",name:"Karen Almeida",pwd:"Karen26EB"},
   {id:"F38",name:"Viviane Nascimento",pwd:"Viviane26EB"},
   {id:"F39",name:"Michele Brito",pwd:"Michele26EB"},
+  {id:"F40",name:"Sabrina Lima",pwd:"Sabrina26EB"},
 ];
 
 const defaultGames = [
@@ -388,7 +385,6 @@ var pendingConfirm = null;
 var pendingResult = null;
 var podiumShown = false;
 
-// ---- NOVA FUNÇÃO: conta palpites iguais ----
 function contarPalpitesIguais(gid, brasil, adv) {
   var count = 0;
   Object.keys(state.palpites).forEach(function(userId) {
@@ -400,7 +396,6 @@ function contarPalpitesIguais(gid, brasil, adv) {
   return count;
 }
 
-// ---- LOGIN ----
 function onNameSelect() {
   var val = document.getElementById('nameSelect').value;
   var pwdRow = document.getElementById('pwdRow');
@@ -514,7 +509,6 @@ function resetPwd(uid, name) {
   db.ref('customPwd/'+uid).remove().then(function(){ showToast('Senha de '+name.split(' ')[0]+' resetada!'); renderSenhas(); });
 }
 
-// ---- HELPERS ----
 function setStatus(type, msg) {
   var el = document.getElementById('statusBar');
   el.className = 'status-bar '+type;
@@ -541,9 +535,13 @@ function isGameDateLocked(g){
 }
 function isGameClosed(g){ return !!(state.realScores&&state.realScores[g.id]&&state.realScores[g.id].brasil!==undefined); }
 function isLocked(uid,gid){ return !!(state.locked[uid]||{})[gid]; }
-function isInputDisabled(uid,g){ return isLocked(uid,g.id)||isGameDateLocked(g)||isGameClosed(g); }
+function isInputDisabled(uid,g){
+  if(uid==='F40'&&g.id==='B03'&&!isLocked(uid,g.id)&&!isGameClosed(g)) return false;
+  return isLocked(uid,g.id)||isGameDateLocked(g)||isGameClosed(g);
+}
 function getLockReason(uid,g){
   if(isGameClosed(g)) return 'encerrado';
+  if(uid==='F40'&&g.id==='B03'&&!isLocked(uid,g.id)) return null;
   if(isGameDateLocked(g)) return 'dia do jogo';
   if(isLocked(uid,g.id)) return 'travado';
   return null;
@@ -560,7 +558,6 @@ function getUserTotalPoints(uid){
   return total;
 }
 
-// ---- TABS ----
 function showTab(t){
   document.querySelectorAll('.tab').forEach(function(el){ el.classList.remove('active'); if(el.getAttribute('onclick')&&el.getAttribute('onclick').indexOf("'"+t+"'")>=0) el.classList.add('active'); });
   document.querySelectorAll('.section').forEach(function(el){ el.classList.remove('active'); });
@@ -581,7 +578,6 @@ function showAdminTab(t){
   if(t==='senhas') renderSenhas();
 }
 
-// ---- MODAIS PLACAR LOTADO ----
 function closeLotadoModal(){ document.getElementById('modalLotadoOverlay').style.display='none'; }
 function showLotadoModal(brasil, adv, gid){
   var g = getGame(gid);
@@ -590,18 +586,14 @@ function showLotadoModal(brasil, adv, gid){
   document.getElementById('modalLotadoOverlay').style.display='flex';
 }
 
-// ---- MODAL CONFIRMAÇÃO ----
 function askConfirmPalpite(gid){
   var bEl=document.getElementById('inp_'+gid+'_b');
   var aEl=document.getElementById('inp_'+gid+'_a');
   if(!bEl||!aEl||bEl.value===''||aEl.value===''){ showToast('Preencha os dois campos antes de confirmar.'); return; }
   var brasil=parseInt(bEl.value), adv=parseInt(aEl.value);
   var g=getGame(gid);
-
-  // ---- VERIFICAÇÃO DE LIMITE ----
   var iguais = contarPalpitesIguais(gid, brasil, adv);
   if (iguais >= LIMITE_PALPITES_IGUAIS) { showLotadoModal(brasil, adv, gid); return; }
-
   pendingConfirm = {gid:gid, brasil:brasil, adv:adv};
   document.getElementById('modalScore').textContent = '🇧🇷 Brasil '+brasil+' × '+adv+' '+(g?g.adv||'':'');
   document.getElementById('modalOverlay').style.display='flex';
@@ -610,11 +602,8 @@ function closeModal(){ document.getElementById('modalOverlay').style.display='no
 function doConfirmPalpite(){
   if (!pendingConfirm) return;
   var uid=currentUser.id, gid=pendingConfirm.gid, brasil=pendingConfirm.brasil, adv=pendingConfirm.adv;
-
-  // Segunda verificação (race condition)
   var iguais = contarPalpitesIguais(gid, brasil, adv);
   if (iguais >= LIMITE_PALPITES_IGUAIS) { closeModal(); showLotadoModal(brasil, adv, gid); return; }
-
   closeModal();
   var btn=document.getElementById('btn_'+gid);
   if(btn){ btn.disabled=true; btn.innerHTML='Salvando...'; }
@@ -656,7 +645,6 @@ function formatDeadline(g){
   return '';
 }
 
-// ---- AVISO INLINE DE VAGAS ----
 function getVagasHtml(gid, brasil, adv) {
   if (brasil===''||adv==='') return '';
   var count = contarPalpitesIguais(gid, brasil, adv);
@@ -666,7 +654,6 @@ function getVagasHtml(gid, brasil, adv) {
   return '';
 }
 
-// ---- RENDER JOGOS ----
 function renderGames(){
   var el=document.getElementById('gamesList');
   if(!currentUser) return;
@@ -749,7 +736,6 @@ function renderHistorico(){
     var ptsHtml='<span class="hist-pending">Aguardando</span>';
     if(!hasPalpite) ptsHtml='<span class="hist-pending">Sem palpite</span>';
     else if(pts===5) ptsHtml='<span class="hist-pts-5">+5 pts 🎯</span>';
-
     else if(pts===0) ptsHtml='<span class="hist-pts-0">0 pts ❌</span>';
     html+='<div class="hist-card">'+
       '<div class="hist-game-title"><span>'+(g.adv?'🇧🇷 Brasil × '+g.adv:'Jogo '+g.id)+'</span>'+ptsHtml+'</div>'+
@@ -832,7 +818,6 @@ function saveGames(){
   db.ref('games').set(state.games).then(function(){ showToast('Jogos salvos!'); }).catch(function(e){ showToast('Erro: '+e.message); });
 }
 
-// ---- PÓDIO ----
 function checkPodium(){
   if(podiumShown||!currentUser||currentUser.isAdmin) return;
   var sorted=users.map(function(u){return{id:u.id,pts:getUserTotalPoints(u.id)};}).sort(function(a,b){return b.pts-a.pts;});
@@ -859,8 +844,6 @@ function showPodium(pos,pts){
 }
 function closePodium(){ document.getElementById('podiumOverlay').style.display='none'; }
 
-
-// ---- PREMIO ----
 function renderPremioBanner(){
   var games=state.games&&state.games.length?state.games:defaultGames;
   var jogoAtivo=null;
@@ -917,7 +900,6 @@ function salvarPremio(btn){
   db.ref('premios/'+gid).set({valor:val,adv:adv}).then(function(){ showToast('Premio salvo!'); }).catch(function(e){ showToast('Erro: '+e.message); });
 }
 
-// ---- EVENTS ----
 document.getElementById('loginPwd').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
 document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 document.getElementById('modalAdminOverlay').addEventListener('click',function(e){if(e.target===this)closeAdminModal();});
