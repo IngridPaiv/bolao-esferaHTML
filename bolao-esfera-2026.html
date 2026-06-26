@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v2.2 limite-palpites-iguais -->
+<!-- v2.3 fix-edit-games -->
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8"/>
@@ -100,8 +100,6 @@
     .hist-game-title{font-size:.82rem;font-weight:600;color:#1a1a1a;margin-bottom:.5rem;display:flex;justify-content:space-between;align-items:center}
     .hist-row{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:#555}
     .hist-pts-5{background:#e8f5e9;color:#1b5e20;padding:3px 10px;border-radius:20px;font-weight:700;font-size:.8rem}
-    .hist-pts-3{background:#e3f2fd;color:#0d47a1;padding:3px 10px;border-radius:20px;font-weight:700;font-size:.8rem}
-    .hist-pts-1{background:#fff8e1;color:#e65100;padding:3px 10px;border-radius:20px;font-weight:700;font-size:.8rem}
     .hist-pts-0{background:#ffebee;color:#b71c1c;padding:3px 10px;border-radius:20px;font-weight:700;font-size:.8rem}
     .hist-pending{background:#f5f5f5;color:#888;padding:3px 10px;border-radius:20px;font-size:.8rem}
     .hist-total{background:var(--el);border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
@@ -109,8 +107,6 @@
     .hist-total-pts{font-size:1.3rem;font-weight:700;color:var(--eb)}
     .rank-game-chip{font-size:.68rem;padding:2px 6px;border-radius:12px;font-weight:600}
     .chip-5{background:#e8f5e9;color:#1b5e20}
-    .chip-3{background:#e3f2fd;color:#0d47a1}
-    .chip-1{background:#fff8e1;color:#e65100}
     .chip-0{background:#ffebee;color:#b71c1c}
     .podium-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2000;display:flex;align-items:center;justify-content:center;padding:1rem}
     .podium-box{background:#fff;border-radius:20px;padding:2rem 1.5rem;max-width:340px;width:100%;text-align:center;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25)}
@@ -212,6 +208,7 @@
         <div id="adminGames"></div>
       </div>
       <div id="at-jogos" style="display:none">
+        <div class="info-box"><i class="ti ti-info-circle" style="font-size:15px;flex-shrink:0;margin-top:1px"></i>Edite os campos e clique em <strong>Salvar alterações</strong> para atualizar para todos os participantes.</div>
         <div id="editGamesList"></div>
         <div class="add-game-box">
           <p style="font-size:.82rem;font-weight:600;color:#1a1a1a;margin-bottom:.75rem">Adicionar novo jogo</p>
@@ -385,13 +382,14 @@ var pendingConfirm = null;
 var pendingResult = null;
 var podiumShown = false;
 
+// Buffer para edição de jogos keyed by game ID (evita bug de índice desatualizado)
+var editGamesBuffer = {};
+
 function contarPalpitesIguais(gid, brasil, adv) {
   var count = 0;
   Object.keys(state.palpites).forEach(function(userId) {
     var p = (state.palpites[userId] || {})[gid];
-    if (p && parseInt(p.brasil) === parseInt(brasil) && parseInt(p.adv) === parseInt(adv)) {
-      count++;
-    }
+    if (p && parseInt(p.brasil) === parseInt(brasil) && parseInt(p.adv) === parseInt(adv)) count++;
   });
   return count;
 }
@@ -443,8 +441,7 @@ function startApp(isFirstAccess) {
     renderGames();
     if (document.querySelector('#sec-ranking.active')) renderRanking();
     if (document.querySelector('#sec-historico.active')) renderHistorico();
-    if (document.querySelector('#at-resultados:not([style*="none"])')) renderAdmin();
-    checkPodium();
+    if (document.getElementById('at-resultados') && document.getElementById('at-resultados').style.display !== 'none') renderAdmin();
   });
   db.ref('games').once('value', function(snap){ if(!snap.val()) db.ref('games').set(defaultGames); });
   if (!currentUser.isAdmin) {
@@ -463,7 +460,7 @@ function startApp(isFirstAccess) {
 }
 
 function doLogout() {
-  currentUser=null; podiumShown=false;
+  currentUser=null; podiumShown=false; editGamesBuffer={};
   document.getElementById('mainApp').style.display='none';
   document.getElementById('loginScreen').style.display='block';
   document.getElementById('nameSelect').value='';
@@ -567,7 +564,8 @@ function showTab(t){
   if(t==='admin') showAdminTab('resultados');
 }
 function showAdminTab(t){
-  document.querySelectorAll('.admin-tab').forEach(function(el,i){ el.classList.toggle('active',['resultados','jogos','senhas'][i]===t); });
+  var tabs=['resultados','jogos','premio','senhas'];
+  document.querySelectorAll('.admin-tab').forEach(function(el,i){ el.classList.toggle('active', tabs[i]===t); });
   document.getElementById('at-resultados').style.display=t==='resultados'?'block':'none';
   document.getElementById('at-jogos').style.display=t==='jogos'?'block':'none';
   document.getElementById('at-premio').style.display=t==='premio'?'block':'none';
@@ -661,6 +659,7 @@ function renderGames(){
   var games=state.games&&state.games.length?state.games:defaultGames;
   var html='';
   games.forEach(function(g){
+    if(!g.adv) return; // só mostra jogos com adversário definido
     var p=getPalpite(uid,g.id);
     var disabled=isInputDisabled(uid,g);
     var reason=getLockReason(uid,g);
@@ -684,14 +683,23 @@ function renderGames(){
       '<div style="display:flex;align-items:center;gap:6px">'+ptsHtml+'<span class="game-date">'+(g.date||'—')+'</span></div></div>'+
       '<div class="game-teams"><span class="team-name">🇧🇷 Brasil</span>'+
       '<div class="score-area">'+
-        '<input class="score-input" id="inp_'+g.id+'_b" type="number" min="0" max="20" value="'+(p.brasil!==''?p.brasil:'')+'" placeholder="—" '+(disabled?'disabled':'')+' />'+
+        '<input class="score-input" id="inp_'+g.id+'_b" type="number" min="0" max="20" value="'+(p.brasil!==''?p.brasil:'')+'" placeholder="—" '+(disabled?'disabled':'')+' oninput="onPalpiteInput(\''+g.id+'\')" />'+
         '<span class="score-sep">×</span>'+
-        '<input class="score-input" id="inp_'+g.id+'_a" type="number" min="0" max="20" value="'+(p.adv!==''?p.adv:'')+'" placeholder="—" '+(disabled?'disabled':'')+' />'+
+        '<input class="score-input" id="inp_'+g.id+'_a" type="number" min="0" max="20" value="'+(p.adv!==''?p.adv:'')+'" placeholder="—" '+(disabled?'disabled':'')+' oninput="onPalpiteInput(\''+g.id+'\')" />'+
       '</div>'+
-      '<span class="team-name right">'+(g.adv||'Adversário')+'</span></div>'+
-      realHtml+vagasHtml+deadline+confirmBtn+'</div>';
+      '<span class="team-name right">'+g.adv+'</span></div>'+
+      realHtml+'<div id="vagas_'+g.id+'">'+vagasHtml+'</div>'+deadline+confirmBtn+'</div>';
   });
+  if(!html) html='<div class="no-data">Nenhum jogo disponível ainda.</div>';
   el.innerHTML=html;
+}
+
+function onPalpiteInput(gid){
+  var bEl=document.getElementById('inp_'+gid+'_b');
+  var aEl=document.getElementById('inp_'+gid+'_a');
+  var vagasEl=document.getElementById('vagas_'+gid);
+  if(!vagasEl) return;
+  vagasEl.innerHTML=getVagasHtml(gid, bEl?bEl.value:'', aEl?aEl.value:'');
 }
 
 function renderAdmin(){
@@ -699,6 +707,7 @@ function renderAdmin(){
   var games=state.games&&state.games.length?state.games:defaultGames;
   var html='';
   games.forEach(function(g){
+    if(!g.adv) return;
     var r=(state.realScores&&state.realScores[g.id])||{brasil:'',adv:''};
     html+='<div class="game-card">'+
       '<div class="game-header"><span class="game-id">'+g.id+'</span>'+
@@ -711,11 +720,12 @@ function renderAdmin(){
         '<span class="score-sep">×</span>'+
         '<input class="score-input" type="number" min="0" max="20" value="'+(r.adv!==''?r.adv:'')+'" id="ar_'+g.id+'_a" placeholder="—"/>'+
       '</div>'+
-      '<span class="team-name right">'+(g.adv||'Adversário')+'</span></div>'+
+      '<span class="team-name right">'+g.adv+'</span></div>'+
       '<button class="btn-primary full" style="margin-top:.65rem;font-size:.82rem" onclick="saveOneResult(\''+g.id+'\')">'+
         '<i class="ti ti-device-floppy" style="margin-right:5px"></i>Salvar resultado</button>'+
     '</div>';
   });
+  if(!html) html='<div class="no-data">Nenhum jogo com adversário definido ainda.</div>';
   el.innerHTML=html;
 }
 
@@ -726,6 +736,7 @@ function renderHistorico(){
   var games=state.games&&state.games.length?state.games:defaultGames;
   var total=0, html='';
   games.forEach(function(g){
+    if(!g.adv) return;
     var p=getPalpite(uid,g.id);
     var real=state.realScores[g.id];
     var hasPalpite=p.brasil!==''&&p.adv!=='';
@@ -738,8 +749,8 @@ function renderHistorico(){
     else if(pts===5) ptsHtml='<span class="hist-pts-5">+5 pts 🎯</span>';
     else if(pts===0) ptsHtml='<span class="hist-pts-0">0 pts ❌</span>';
     html+='<div class="hist-card">'+
-      '<div class="hist-game-title"><span>'+(g.adv?'🇧🇷 Brasil × '+g.adv:'Jogo '+g.id)+'</span>'+ptsHtml+'</div>'+
-      '<div class="hist-row" style="margin-bottom:3px"><span>'+(hasPalpite?'Seu palpite: Brasil '+p.brasil+' × '+p.adv+' '+(g.adv||''):'Sem palpite registrado')+'</span></div>'+
+      '<div class="hist-game-title"><span>🇧🇷 Brasil × '+g.adv+'</span>'+ptsHtml+'</div>'+
+      '<div class="hist-row" style="margin-bottom:3px"><span>'+(hasPalpite?'Seu palpite: Brasil '+p.brasil+' × '+p.adv+' '+g.adv:'Sem palpite registrado')+'</span></div>'+
       '<div class="hist-row" style="color:#888"><span>'+(hasResult?'Resultado: Brasil '+real.brasil+' × '+real.adv:'Resultado ainda não disponível')+'</span></div>'+
     '</div>';
   });
@@ -751,9 +762,10 @@ function renderRanking(){
   var games=state.games&&state.games.length?state.games:defaultGames;
   var html='';
   games.forEach(function(g){
+    if(!g.adv) return;
     var real=state.realScores[g.id];
-    var gameTitle=g.adv?'🇧🇷 Brasil × '+g.adv:'Jogo '+g.id;
-    var dateStr=g.date?' <span style="font-size:.72rem;color:#aaa;font-weight:400">'+g.date+'</span>':'';
+    var gameTitle='🇧🇷 Brasil × '+g.adv;
+    var dateStr=g.date?' <span style="font-size:.72rem;color:rgba(255,255,255,.6);font-weight:400">'+g.date+'</span>':'';
     var scorers=users.map(function(u){
       var p=getPalpite(u.id,g.id);
       var pts=(p.brasil!==''&&p.adv!==''&&real&&real.brasil!==undefined)?calcPts(parseInt(p.brasil),parseInt(p.adv),real.brasil,real.adv):null;
@@ -782,17 +794,40 @@ function renderRanking(){
   checkPodium();
 }
 
+// ─── CORREÇÃO PRINCIPAL: renderEditGames usa buffer keyed por ID, não índice ──
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
 function renderEditGames(){
   var el=document.getElementById('editGamesList');
   var games=state.games&&state.games.length?state.games:defaultGames;
+  // Preenche buffer só se ainda não foi editado pelo admin
+  games.forEach(function(g){
+    if(!editGamesBuffer[g.id]){
+      editGamesBuffer[g.id]={adv:g.adv||'',date:g.date||'',fullDate:g.fullDate||''};
+    }
+  });
   var html='';
-  games.forEach(function(g,i){
-    html+='<div class="game-edit-card"><div class="card-top"><span class="game-id">'+g.id+'</span></div>'+
-      '<div class="edit-row">'+
-        '<div><label class="edit-label">Adversário</label><input class="txt-input" value="'+(g.adv||'')+'" placeholder="ex: Argentina" onchange="state.games['+i+'].adv=this.value"/></div>'+
-        '<div><label class="edit-label">Data exibição</label><input class="txt-input" value="'+(g.date||'')+'" placeholder="ex: 28/Jun" onchange="state.games['+i+'].date=this.value"/></div>'+
+  games.forEach(function(g){
+    var buf=editGamesBuffer[g.id];
+    html+='<div class="game-edit-card">'+
+      '<div class="card-top"><span class="game-id">'+g.id+'</span>'+
+        (g.adv?'<span style="font-size:.72rem;color:#2e7d32;font-weight:600">'+escHtml(g.adv)+'</span>':
+               '<span style="font-size:.72rem;color:#e65100">sem adversário</span>')+
       '</div>'+
-      '<div><label class="edit-label">Data completa (DD/MM/AAAA)</label><input class="txt-input" value="'+(g.fullDate||'')+'" placeholder="ex: 28/06/2026" onchange="state.games['+i+'].fullDate=this.value"/></div>'+
+      '<div class="edit-row">'+
+        '<div><label class="edit-label">Adversário</label>'+
+          '<input class="txt-input" value="'+escHtml(buf.adv)+'" placeholder="ex: Japão"'+
+            ' oninput="editGamesBuffer[\''+g.id+'\'].adv=this.value"'+
+            ' onchange="editGamesBuffer[\''+g.id+'\'].adv=this.value"/></div>'+
+        '<div><label class="edit-label">Data exibição</label>'+
+          '<input class="txt-input" value="'+escHtml(buf.date)+'" placeholder="ex: 29/Jun"'+
+            ' oninput="editGamesBuffer[\''+g.id+'\'].date=this.value"'+
+            ' onchange="editGamesBuffer[\''+g.id+'\'].date=this.value"/></div>'+
+      '</div>'+
+      '<div><label class="edit-label">Data completa DD/MM/AAAA — usada para travar automaticamente no dia do jogo</label>'+
+        '<input class="txt-input" value="'+escHtml(buf.fullDate)+'" placeholder="ex: 29/06/2026"'+
+          ' oninput="editGamesBuffer[\''+g.id+'\'].fullDate=this.value"'+
+          ' onchange="editGamesBuffer[\''+g.id+'\'].fullDate=this.value"/></div>'+
     '</div>';
   });
   el.innerHTML=html;
@@ -803,19 +838,36 @@ function addGame(){
   var adv=document.getElementById('new-adv').value.trim();
   var fullDate=document.getElementById('new-date').value.trim();
   if(!id){ showToast('Informe o ID do jogo.'); return; }
-  var games=state.games&&state.games.length?state.games.slice():[];
+  var games=state.games&&state.games.length?state.games.slice():defaultGames.slice();
   if(games.find(function(g){return g.id===id;})){ showToast('Já existe um jogo com esse ID.'); return; }
   var dateDisplay='';
   if(fullDate){ var p=fullDate.split('/'); var months=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; if(p.length===3) dateDisplay=p[0]+'/'+months[parseInt(p[1])-1]; }
   games.push({id:id,adv:adv,date:dateDisplay,fullDate:fullDate});
   db.ref('games').set(games).then(function(){
     document.getElementById('new-id').value=''; document.getElementById('new-adv').value=''; document.getElementById('new-date').value='';
+    editGamesBuffer={};
     renderEditGames(); showToast('Jogo '+id+' adicionado!');
   });
 }
 
+// ─── CORREÇÃO: saveGames lê do buffer, não do state que pode estar desatualizado ──
 function saveGames(){
-  db.ref('games').set(state.games).then(function(){ showToast('Jogos salvos!'); }).catch(function(e){ showToast('Erro: '+e.message); });
+  var games=state.games&&state.games.length?state.games.slice():defaultGames.slice();
+  games=games.map(function(g){
+    var buf=editGamesBuffer[g.id];
+    if(!buf) return g;
+    return {id:g.id, adv:buf.adv.trim(), date:buf.date.trim(), fullDate:buf.fullDate.trim()};
+  });
+  // Aviso se tem adversário mas sem data completa (travamento automático não vai funcionar)
+  var missing=games.filter(function(g){return g.adv&&!g.fullDate;});
+  if(missing.length>0){
+    var ids=missing.map(function(g){return g.id;}).join(', ');
+    if(!confirm('Atenção: jogo(s) '+ids+' têm adversário mas sem "Data completa" — o travamento automático no dia do jogo não vai funcionar.\n\nSalvar mesmo assim?')) return;
+  }
+  db.ref('games').set(games).then(function(){
+    editGamesBuffer={};
+    showToast('Jogos salvos! Aba de palpites atualizada para todos.');
+  }).catch(function(e){ showToast('Erro: '+e.message); });
 }
 
 function checkPodium(){
@@ -878,9 +930,9 @@ function renderAdminPremio(){
     var val=typeof premioData==='object'?(premioData.valor||''):(premioData||'');
     var advAtual=typeof premioData==='object'?(premioData.adv||g.adv||''):(g.adv||'');
     html+='<div class="admin-premio-box">';
-    html+='<div class="admin-premio-title">Jogo '+gid+(g.date?' - '+g.date:'')+'</div>';
+    html+='<div class="admin-premio-title">Jogo '+gid+(g.date?' - '+g.date:'')+(g.adv?' · '+escHtml(g.adv):'')+'</div>';
     html+='<div style="display:flex;flex-direction:column;gap:.5rem">';
-    html+='<div style="display:flex;gap:.5rem;align-items:center"><span style="font-size:.82rem;color:#555;min-width:80px">Adversario:</span><input class="txt-input" type="text" value="'+advAtual+'" placeholder="ex: Escocia" id="premioAdv_'+gid+'" style="flex:1"/></div>';
+    html+='<div style="display:flex;gap:.5rem;align-items:center"><span style="font-size:.82rem;color:#555;min-width:80px">Adversario:</span><input class="txt-input" type="text" value="'+escHtml(advAtual)+'" placeholder="ex: Japão" id="premioAdv_'+gid+'" style="flex:1"/></div>';
     html+='<div style="display:flex;gap:.5rem;align-items:center"><span style="font-size:.82rem;color:#555;min-width:80px">Premio R$:</span><input class="txt-input" type="number" min="0" step="0.01" value="'+val+'" placeholder="0,00" id="premioVal_'+gid+'" style="flex:1"/></div>';
     html+='<button onclick="salvarPremio(this)" data-gid="'+gid+'" style="padding:.55rem 1rem;background:#1a2e4a;color:#fff;border:none;border-radius:8px;font-size:.82rem;cursor:pointer;font-weight:600">Salvar</button>';
     html+='</div></div>';
