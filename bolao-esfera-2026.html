@@ -405,7 +405,7 @@ firebase.initializeApp({
   appId:"1:707967155138:web:466f6a991df1e4779ef45b"
 });
 var db = firebase.database();
-var state = {palpites:{}, locked:{}, realScores:{}, games:null, premios:{}, teams:[]};
+var state = {palpites:{}, locked:{}, realScores:{}, games:null, premios:{}, teams:[], finalDeadline:null};
 var currentUser = null;
 var pendingConfirm = null;
 var pendingResult = null;
@@ -477,6 +477,7 @@ function startApp(isFirstAccess) {
     state.games = data.games && data.games.length ? data.games : null;
     state.premios = data.premios || {};
     state.teams = data.teams || [];
+    state.finalDeadline = data.finalDeadline || FINAL_DEADLINE;
     renderPremioBanner();
     renderGames();
     renderFinalCard();
@@ -767,7 +768,8 @@ function onPalpiteInput(gid){
 
 // ─── RODADA FINAL: Campeão / Vice ──────────────────────────────────────────
 function isFinalDeadlinePassed(){
-  var p=FINAL_DEADLINE.split('/');
+  var fd=state.finalDeadline||FINAL_DEADLINE;
+  var p=fd.split('/');
   var d=new Date(parseInt(p[2]),parseInt(p[1])-1,parseInt(p[0]),0,0,0,0);
   var today=new Date(); today.setHours(0,0,0,0);
   return today>=d;
@@ -803,6 +805,7 @@ function renderFinalCard(){
   else if(reason==='travado') badge='<span class="badge-locked"><i class="ti ti-lock" style="font-size:10px"></i> travado</span>';
   var realHtml=rb!==null?'<div class="real-score-area"><span class="real-label">Resultado oficial:</span><span style="font-size:.88rem;font-weight:700;color:var(--eb);margin-left:8px">🏆 '+rb+' · 🥈 '+ra+'</span></div>':'';
   var vagasHtml=!disabled?getVagasHtmlFinal(p.brasil,p.adv):'';
+  var deadlineHtml=!disabled?formatDeadline({fullDate:state.finalDeadline||FINAL_DEADLINE}):'';
   var selectsHtml, confirmBtn='';
   if(disabled){
     selectsHtml='<div class="final-select-row"><div class="final-select-group"><span class="final-select-label">🏆 Seu palpite de Campeão</span><span class="team-chip">'+(p.brasil||'—')+'</span></div><div class="final-select-group"><span class="final-select-label">🥈 Seu palpite de Vice</span><span class="team-chip">'+(p.adv||'—')+'</span></div></div>';
@@ -821,7 +824,7 @@ function renderFinalCard(){
   }
   wrap.innerHTML='<div class="final-card">'+
     '<div class="final-header"><span style="font-size:1.4rem">🏆</span><div><div class="final-title">Rodada Final — Campeão e Vice'+(badge?'&nbsp;&nbsp;'+badge:'')+'</div><div class="final-sub">Cravou os dois? Leva tudo. Senão, acertar o Campeão ou o Vice ainda te dá chance.</div></div></div>'+
-    selectsHtml+realHtml+'<div id="vagas_'+FINAL_ID+'">'+vagasHtml+'</div>'+confirmBtn+
+    selectsHtml+realHtml+'<div id="vagas_'+FINAL_ID+'">'+vagasHtml+'</div>'+deadlineHtml+confirmBtn+
   '</div>';
 }
 function onFinalSelectChange(){
@@ -861,11 +864,16 @@ function renderAdminFinal(){
 
   var real=state.realScores[FINAL_ID]||{brasil:'',adv:''};
   var teams=state.teams||[];
+  var deadlineBoxHtml='<div class="admin-premio-box"><div class="admin-premio-title"><i class="ti ti-lock"></i> Data de travamento da Final</div>'+
+    '<div style="display:flex;gap:.5rem;align-items:flex-end">'+
+    '<div style="flex:1"><label class="edit-label">A partir dessa data (DD/MM/AAAA) os palpites travam sozinhos</label><input class="txt-input" id="finalDeadlineInp" value="'+escHtml(state.finalDeadline||FINAL_DEADLINE)+'" placeholder="ex: 08/07/2026"/></div>'+
+    '<button class="btn-primary" onclick="saveFinalDeadline()" style="white-space:nowrap"><i class="ti ti-device-floppy"></i></button>'+
+    '</div></div>';
   if(!teams.length){
-    resEl.innerHTML='<div class="no-data">Cadastre os times acima para liberar o resultado oficial.</div>';
+    resEl.innerHTML=deadlineBoxHtml+'<div class="no-data">Cadastre os times acima para liberar o resultado oficial.</div>';
     return;
   }
-  resEl.innerHTML='<div class="admin-premio-box">'+
+  resEl.innerHTML=deadlineBoxHtml+'<div class="admin-premio-box">'+
     '<div style="display:flex;flex-direction:column;gap:.6rem">'+
     '<div><label class="edit-label">🏆 Campeão oficial</label><select class="user-select" id="finalRes_camp">'+teamOptionsHtml(real.brasil,real.adv)+'</select></div>'+
     '<div><label class="edit-label">🥈 Vice-campeão oficial</label><select class="user-select" id="finalRes_vice">'+teamOptionsHtml(real.adv,real.brasil)+'</select></div>'+
@@ -884,6 +892,13 @@ function addTeamBuf(){
 function removeTeamBuf(i){ teamsBuffer.splice(i,1); renderAdminFinal(); }
 function saveTeams(){
   db.ref('teams').set(teamsBuffer.slice()).then(function(){ showToast('Times salvos!'); }).catch(function(e){ showToast('Erro: '+e.message); });
+}
+function saveFinalDeadline(){
+  var inp=document.getElementById('finalDeadlineInp');
+  var val=(inp.value||'').trim();
+  var p=val.split('/');
+  if(p.length!==3||isNaN(parseInt(p[0]))||isNaN(parseInt(p[1]))||isNaN(parseInt(p[2]))){ showToast('Use o formato DD/MM/AAAA.'); return; }
+  db.ref('finalDeadline').set(val).then(function(){ showToast('Data de travamento da Final atualizada!'); }).catch(function(e){ showToast('Erro: '+e.message); });
 }
 function saveFinalResult(){
   var c=document.getElementById('finalRes_camp'), v=document.getElementById('finalRes_vice');
@@ -932,19 +947,21 @@ function renderFinalRanking(){
   var all=users.map(function(u){ return {id:u.id,name:u.name,p:getPalpite(u.id,FINAL_ID)}; }).filter(function(u){ return u.p.brasil&&u.p.adv; });
   var html='<div style="background:#fff;border:1px solid #e8e8e8;border-radius:12px;margin-bottom:1.25rem;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)">'+
     '<div style="background:var(--eb);padding:.65rem 1rem"><span style="color:#fff;font-size:.88rem;font-weight:600">🏆 Rodada Final — Campeão e Vice</span></div>';
-  if(!real||!real.brasil){
-    html+='<div style="padding:1.25rem;text-align:center;color:#aaa;font-size:.85rem">Aguardando o resultado oficial da Final.</div></div>';
-    wrap.innerHTML=html; return;
+  var winnerIds=[];
+  if(real&&real.brasil){
+    var res=computeFinalWinners();
+    winnerIds=(res.winners||[]).map(function(w){return w.id;});
+    html+='<div style="padding:.75rem 1rem 0"><div class="tier-banner tier-'+res.tier+'">'+res.label+'</div></div>';
+  } else {
+    html+='<div style="padding:.75rem 1rem 0"><div class="tier-banner tier-0">Aguardando o resultado oficial da Final — os palpites já confirmados aparecem abaixo.</div></div>';
   }
-  var res=computeFinalWinners();
-  var winnerIds=(res.winners||[]).map(function(w){return w.id;});
-  html+='<div style="padding:.75rem 1rem 0"><div class="tier-banner tier-'+res.tier+'">'+res.label+'</div></div>';
-  if(!all.length){ html+='<div style="padding:1.25rem;text-align:center;color:#aaa;font-size:.85rem">Nenhum palpite confirmado.</div>'; }
+  if(!all.length){ html+='<div style="padding:1.25rem;text-align:center;color:#aaa;font-size:.85rem">Nenhum palpite confirmado ainda.</div>'; }
   else {
     html+='<table class="ranking-table"><thead><tr><th>Participante</th><th>Campeão</th><th>Vice</th><th style="text-align:right">Status</th></tr></thead><tbody>';
     all.forEach(function(u){
       var isWinner=winnerIds.indexOf(u.id)>=0;
-      html+='<tr class="'+(isWinner?'winner-row':'')+'"><td style="font-size:.82rem">'+u.name+'</td><td style="font-size:.82rem;color:#888">'+u.p.brasil+'</td><td style="font-size:.82rem;color:#888">'+u.p.adv+'</td><td style="text-align:right">'+(isWinner?'<span class="rank-game-chip chip-5">Ganhador 🏆</span>':'<span class="rank-game-chip chip-0">—</span>')+'</td></tr>';
+      var statusCell=(real&&real.brasil)?(isWinner?'<span class="rank-game-chip chip-5">Ganhador 🏆</span>':'<span class="rank-game-chip chip-0">—</span>'):'<span class="hist-pending">Confirmado</span>';
+      html+='<tr class="'+(isWinner?'winner-row':'')+'"><td style="font-size:.82rem">'+u.name+'</td><td style="font-size:.82rem;color:#888">'+u.p.brasil+'</td><td style="font-size:.82rem;color:#888">'+u.p.adv+'</td><td style="text-align:right">'+statusCell+'</td></tr>';
     });
     html+='</tbody></table>';
   }
@@ -961,17 +978,37 @@ function renderFinalHistorico(){
   var hasPalpite=p.brasil&&p.adv;
   var hasResult=real&&real.brasil;
   var statusHtml='<span class="hist-pending">Aguardando</span>';
+  var winnerIds=[];
   if(!hasPalpite) statusHtml='<span class="hist-pending">Sem palpite</span>';
   else if(hasResult){
     var res=computeFinalWinners();
-    var isWinner=res && res.winners.some(function(w){return w.id===uid;});
+    winnerIds=(res.winners||[]).map(function(w){return w.id;});
+    var isWinner=winnerIds.indexOf(uid)>=0;
     statusHtml=isWinner?'<span class="hist-pts-5">Ganhador 🏆</span>':'<span class="hist-pts-0">Não premiado</span>';
   }
-  wrap.innerHTML='<div class="hist-card" style="border:2px solid var(--eb)">'+
+  var html='<div class="hist-card" style="border:2px solid var(--eb)">'+
     '<div class="hist-game-title"><span>🏆 Rodada Final</span>'+statusHtml+'</div>'+
     '<div class="hist-row" style="margin-bottom:3px"><span>'+(hasPalpite?'Seu palpite: 🏆 '+p.brasil+' · 🥈 '+p.adv:'Sem palpite registrado')+'</span></div>'+
     '<div class="hist-row" style="color:#888"><span>'+(hasResult?'Oficial: 🏆 '+real.brasil+' · 🥈 '+real.adv:'Resultado ainda não disponível')+'</span></div>'+
   '</div>';
+
+  // Palpites de todos os participantes na rodada final
+  var all=users.map(function(u){ return {id:u.id,name:u.name,p:getPalpite(u.id,FINAL_ID)}; }).filter(function(u){ return u.p.brasil&&u.p.adv; });
+  html+='<div style="background:#fff;border:1px solid #e8e8e8;border-radius:12px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)">'+
+    '<div style="background:var(--eb);padding:.6rem 1rem"><span style="color:#fff;font-size:.82rem;font-weight:600">Palpites de todo mundo na Final</span></div>';
+  if(!all.length){
+    html+='<div style="padding:1.1rem;text-align:center;color:#aaa;font-size:.82rem">Ninguém confirmou o palpite da Final ainda.</div>';
+  } else {
+    html+='<table class="ranking-table"><thead><tr><th>Participante</th><th>Campeão</th><th>Vice</th>'+(hasResult?'<th style="text-align:right">Status</th>':'')+'</tr></thead><tbody>';
+    all.forEach(function(u){
+      var isWinner=winnerIds.indexOf(u.id)>=0;
+      var youTag=u.id===uid?' <span style="color:#888;font-weight:400">(você)</span>':'';
+      html+='<tr class="'+(isWinner?'winner-row':'')+'"><td style="font-size:.8rem">'+u.name+youTag+'</td><td style="font-size:.8rem;color:#888">'+u.p.brasil+'</td><td style="font-size:.8rem;color:#888">'+u.p.adv+'</td>'+(hasResult?'<td style="text-align:right">'+(isWinner?'<span class="rank-game-chip chip-5">Ganhador 🏆</span>':'<span class="rank-game-chip chip-0">—</span>')+'</td>':'')+'</tr>';
+    });
+    html+='</tbody></table>';
+  }
+  html+='</div>';
+  wrap.innerHTML=html;
 }
 
 function renderAdmin(){
