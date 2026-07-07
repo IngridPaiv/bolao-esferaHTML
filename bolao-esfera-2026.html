@@ -148,6 +148,14 @@
     .team-chip{display:inline-flex;align-items:center;gap:4px;background:#f2f2f2;padding:2px 9px;border-radius:20px;font-size:.72rem;color:#555;margin-right:4px}
     .team-list-row{display:flex;justify-content:space-between;align-items:center;padding:.65rem 1rem}
     .btn-remove-team{background:none;border:1px solid #fcc;border-radius:6px;padding:3px 9px;font-size:.72rem;color:#c62828;cursor:pointer}
+    .final-celeb-teams{display:flex;align-items:center;justify-content:center;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap}
+    .final-celeb-chip{background:var(--el);color:var(--eb);padding:6px 14px;border-radius:20px;font-size:.85rem;font-weight:700}
+    .final-celeb-vs{color:#aaa;font-size:.8rem;font-weight:600}
+    .trophy-spin{font-size:4.5rem;display:block;margin-bottom:.5rem;animation:trophySpinPop .9s ease-out}
+    @keyframes trophySpinPop{0%{transform:scale(0) rotate(-30deg);opacity:0}60%{transform:scale(1.25) rotate(12deg);opacity:1}100%{transform:scale(1) rotate(0deg);filter:drop-shadow(0 0 16px gold)}}
+    .stars-burst{position:relative;height:70px;margin-bottom:.25rem}
+    .star-piece{position:absolute;top:35px;left:50%;font-size:1.3rem;animation:starBurst 1.1s ease-out forwards}
+    @keyframes starBurst{0%{transform:translate(-50%,-50%) scale(0);opacity:1}100%{transform:translate(calc(-50% + var(--sx)),calc(-50% + var(--sy))) scale(1);opacity:0}}
   </style>
 </head>
 <body>
@@ -302,7 +310,7 @@
   <div class="modal-box">
     <div class="modal-icon">⚽</div>
     <div class="modal-title">Confirmar palpite?</div>
-    <div class="modal-msg">Você está prestes a confirmar o placar abaixo. Após confirmar, não será possível alterar.</div>
+    <div class="modal-msg">Você está prestes a confirmar o palpite abaixo. Após confirmar, não será possível alterar.</div>
     <div class="modal-score" id="modalScore"></div>
     <div class="modal-btns">
       <button class="modal-btn-cancel" onclick="closeModal()">Cancelar</button>
@@ -330,6 +338,16 @@
     <div class="podium-title" id="podiumTitle"></div>
     <div class="podium-msg" id="podiumMsg"></div>
     <button class="podium-close" onclick="closePodium()">Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL CELEBRAÇÃO PALPITE FINAL -->
+<div class="podium-overlay" id="finalCelebOverlay" style="display:none">
+  <div class="podium-box" id="finalCelebBox">
+    <div id="finalCelebAnim"></div>
+    <div class="podium-title" id="finalCelebTitle">Palpite registrado!</div>
+    <div class="podium-msg" id="finalCelebMsg"></div>
+    <button class="podium-close" onclick="closeFinalCeleb()">Fechar</button>
   </div>
 </div>
 
@@ -664,9 +682,37 @@ function doConfirmPalpite(){
   Promise.all([
     db.ref('palpites/'+uid+'/'+gid).set({brasil:brasil, adv:adv, ts:firebase.database.ServerValue.TIMESTAMP}),
     db.ref('locked/'+uid+'/'+gid).set(true)
-  ]).then(function(){ showToast('Palpite confirmado e travado!'); })
-    .catch(function(e){ showToast('Erro: '+e.message); if(btn){ btn.disabled=false; btn.innerHTML='Confirmar palpite'; } });
+  ]).then(function(){
+    if(gid===FINAL_ID){ showFinalCeleb(brasil, adv); }
+    else { showToast('Palpite confirmado e travado!'); }
+  }).catch(function(e){ showToast('Erro: '+e.message); if(btn){ btn.disabled=false; btn.innerHTML='Confirmar palpite'; } });
 }
+
+function showFinalCeleb(campeao, vice){
+  var confetti='<div class="confetti-container">';
+  var colors=['#f5c518','#2563a8','#1a2e4a','#e84393','#00c851','#ff7043'];
+  for(var i=0;i<28;i++){
+    var c=colors[i%colors.length];
+    confetti+='<div class="confetti-piece" style="left:'+(Math.random()*100)+'%;background:'+c+';animation-duration:'+(1.4+Math.random()*1.6)+'s;animation-delay:'+(Math.random()*1.2)+'s"></div>';
+  }
+  confetti+='</div>';
+  var stars='<div class="stars-burst">';
+  var starEmojis=['⭐','✨','🌟'];
+  for(var j=0;j<10;j++){
+    var ang=(j/10)*2*Math.PI;
+    var dist=60+Math.random()*30;
+    var sx=Math.cos(ang)*dist, sy=Math.sin(ang)*dist;
+    stars+='<span class="star-piece" style="--sx:'+sx+'px;--sy:'+sy+'px;animation-delay:'+(Math.random()*.3)+'s">'+starEmojis[j%3]+'</span>';
+  }
+  stars+='</div>';
+  document.getElementById('finalCelebAnim').innerHTML=confetti+stars+'<span class="trophy-spin">🏆</span>';
+  document.getElementById('finalCelebTitle').textContent='Palpite da Final registrado!';
+  document.getElementById('finalCelebMsg').innerHTML='Boa! Seu palpite ficou travado:<br><br>'+
+    '<div class="final-celeb-teams"><span class="final-celeb-chip">🏆 '+campeao+'</span><span class="final-celeb-vs">vs</span><span class="final-celeb-chip">🥈 '+vice+'</span></div>'+
+    'Agora é torcer!';
+  document.getElementById('finalCelebOverlay').style.display='flex';
+}
+function closeFinalCeleb(){ document.getElementById('finalCelebOverlay').style.display='none'; }
 
 function saveOneResult(gid){
   var b=document.getElementById('ar_'+gid+'_b'), a=document.getElementById('ar_'+gid+'_a');
@@ -1266,6 +1312,7 @@ document.getElementById('modalOverlay').addEventListener('click',function(e){if(
 document.getElementById('modalAdminOverlay').addEventListener('click',function(e){if(e.target===this)closeAdminModal();});
 document.getElementById('podiumOverlay').addEventListener('click',function(e){if(e.target===this)closePodium();});
 document.getElementById('modalLotadoOverlay').addEventListener('click',function(e){if(e.target===this)closeLotadoModal();});
+document.getElementById('finalCelebOverlay').addEventListener('click',function(e){if(e.target===this)closeFinalCeleb();});
 
 (function(){
   var sel=document.getElementById('nameSelect');
